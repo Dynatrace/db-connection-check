@@ -62,6 +62,14 @@ public class ConnectionCheck {
 		connectionProps.put("user", user);
 		connectionProps.put("password", password);
 		connectionProps.put("oracle.net.CONNECT_TIMEOUT", String.valueOf(timeout * 1000));
+
+		try {
+			Class.forName("net.snowflake.client.jdbc.SnowflakeDriver");
+			System.out.println("loaded Snowflake driver");
+		} catch (final Exception e) {
+			System.out.println("failed to load Snowlake driver");
+		}
+
 		try {
 			Class.forName("oracle.jdbc.driver.OracleDriver");
 			System.out.println("loaded Oracle driver");
