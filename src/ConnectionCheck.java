@@ -20,7 +20,6 @@ public class ConnectionCheck{
 
 	private static final String ORACLE_PREFIX = "jdbc:oracle:"; //$NON-NLS-1$
 	private static final String SQLSERVER_PREFIX = "jdbc:sqlserver://"; //$NON-NLS-1$
-	private static final String SQLSERVER_JTDS_PREFIX = "jdbc:jtds:sqlserver";//$NON-NLS-1$
 	private static final String MYSQL_PREFIX = "jdbc:mysql";//$NON-NLS-1$
     private static final String MYSQL_LOADBALANCER_PREFIX = "jdbc:mysql:loadbalance://";//$NON-NLS-1$
     private static final String MYSQL_REPLICATION_PREFIX = "jdbc:mysql:replication://";//$NON-NLS-1$
@@ -34,10 +33,10 @@ public class ConnectionCheck{
 	private final static Scanner scanner = new Scanner(System.in);
 
 	private String connectionString;
-	private String user;
-	private String password;
-	private int timeout;
-	private String host;
+	private final String user;
+	private final String password;
+	private final String host;
+	private final int timeout;
 
 	public ConnectionCheck() {
 		System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
@@ -60,15 +59,9 @@ public class ConnectionCheck{
 
 		LogSaver.appendLog(Level.INFO, "JDBC String: " + connectionString +  "\n" +
 				"User: " + user + "\n" +
-				"Timeout (seconds): " + timeout + "\n" +
 				"Hostname: " + host);
-
-		System.out.println("Attempting JDBC connection with timeout...");
-		if(isSqlServer(connectionString)){
-			connectionString += ";loginTimeout=" + (timeout * 1000);
-		}
-
 	}
+
 	public String getConnectionString() {
 		return connectionString;
 	}
@@ -81,7 +74,6 @@ public class ConnectionCheck{
 		final Properties connectionProps = new Properties();
 		connectionProps.put("user", user);
 		connectionProps.put("password", password);
-		connectionProps.put("loginTimeout", String.valueOf(timeout * 1000));
 		return connectionProps;
 	}
 
@@ -93,6 +85,9 @@ public class ConnectionCheck{
 			System.exit(0);
 		}
 		return provider;
+	}
+	public int getTimeout(){
+		return timeout;
 	}
 
 	private  String getHostFromJdbcConnectionString(final String connectionString) {
@@ -156,8 +151,7 @@ public class ConnectionCheck{
 	}
 
 	private boolean isSqlServer(final String connectionString) {
-		return connectionString != null && (connectionString.toLowerCase().startsWith(SQLSERVER_PREFIX) ||
-				connectionString.toLowerCase().startsWith(SQLSERVER_JTDS_PREFIX));
+		return connectionString != null && (connectionString.toLowerCase().startsWith(SQLSERVER_PREFIX));
 	}
 
     private boolean isMySQL(final String connectionString) {
@@ -195,9 +189,6 @@ public class ConnectionCheck{
 		if (url.startsWith(SQLSERVER_PREFIX)) {
 			cutoffUrl = url.substring(SQLSERVER_PREFIX.length());
 		}
-		if (url.startsWith(SQLSERVER_JTDS_PREFIX)) {
-			cutoffUrl = url.substring(SQLSERVER_JTDS_PREFIX.length());
-		}
 		if (url.startsWith(MYSQL_PREFIX)) {
 			cutoffUrl = url.substring(MYSQL_PREFIX.length());
 		}
@@ -224,8 +215,7 @@ public class ConnectionCheck{
 		if (connectionString.startsWith(ORACLE_PREFIX)){
 			return Provider.ORACLE;
 		}
-		if (connectionString.startsWith(SQLSERVER_PREFIX)
-				|| connectionString.startsWith(SQLSERVER_JTDS_PREFIX)){
+		if (connectionString.startsWith(SQLSERVER_PREFIX)){
 			return Provider.MICROSOFT;
 		}
 		if (connectionString.startsWith(MYSQL_PREFIX) ||

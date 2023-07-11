@@ -1,11 +1,10 @@
-public enum DataBase {
+public enum Provider {
     ORACLE,
     MYSQL,
     MICROSOFT,
     HANA_DB,
     DB2,
     POSTGRESQL,
-    SNOWFLAKE,
-    JTDS
+    SNOWFLAKE
 
 }
