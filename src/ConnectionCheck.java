@@ -6,23 +6,17 @@
  * @author: wiktor
  */
 
-import java.io.File;
-import java.net.*;
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author wiktor
  */
 
-public class ConnectionCheck {
+public class ConnectionCheck{
 
 	private static final String ORACLE_PREFIX = "jdbc:oracle:"; //$NON-NLS-1$
 	private static final String SQLSERVER_PREFIX = "jdbc:sqlserver://"; //$NON-NLS-1$
@@ -35,67 +29,73 @@ public class ConnectionCheck {
 	private static final String DB2_PREFIX = "jdbc:db2://";
 	private static final String POSTGRESQL_PREFIX = "jdbc:postgresql://";
 	private static final String SNOWFLAKE_PREFIX = "jdbc:snowflake://";
-	private final static Logger LOGGER =
-			Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-	public static void main(final String[] args) throws Exception {
-		if (args.length > 5) {
+
+	private final static Scanner scanner = new Scanner(System.in);
+
+	private String connectionString;
+	private String user;
+	private String password;
+	private int timeout;
+	private String host;
+
+	public ConnectionCheck() {
+		System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
+		final String argumentsString = scanner.nextLine();
+		final String[] args = argumentsString.split(" ");
+		if (Arrays.asList(args).contains(" ")){
 			System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
 			System.exit(0);
 		}
-		String connectionString = args[0];
-		final String user = args[1];
-		final String password = args[2];
-		final int timeout = Integer.valueOf(args[3]);
-		final String host = getHostFromJdbcConnectionString(connectionString);
-		String folderPath = "";
-		if (args.length == 5) {
-			folderPath = args[4];
-		}else {
-			folderPath = checkOs(extractProvider(connectionString));
+
+		if (args.length > 4) {
+			System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
+			System.exit(0);
 		}
+		connectionString = args[0];
+		user = args[1];
+		password = args[2];
+		timeout = Integer.parseInt(args[3]);
+		host = getHostFromJdbcConnectionString(connectionString);
 
-
-		LOGGER.log(Level.INFO, "JDBC String: " + connectionString +  "\n" +
+		LogSaver.appendLog(Level.INFO, "JDBC String: " + connectionString +  "\n" +
 				"User: " + user + "\n" +
-				"Password: " + password + "\n" +
 				"Timeout (seconds): " + timeout + "\n" +
-				"Folder path: " + folderPath + "\n" +
 				"Hostname: " + host);
-
-
-		boolean isReachable = false;
-		try {
-			isReachable = InetAddress.getByName(host).isReachable(timeout * 1000);
-		} catch (final UnknownHostException e) {
-			isReachable = false;
-			LOGGER.log(Level.WARNING, "InetAddress.getByName().isReachable(): got UnknownHostException");
-		}
-
-		LOGGER.log(Level.INFO, "InetAddress.getByName().isReachable(): " + isReachable);
 
 		System.out.println("Attempting JDBC connection with timeout...");
 		if(isSqlServer(connectionString)){
-			connectionString += ";loginTimeout=" + String.valueOf(timeout * 1000);
+			connectionString += ";loginTimeout=" + (timeout * 1000);
 		}
+
+	}
+	public String getConnectionString() {
+		return connectionString;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public Properties getProperties(){
 		final Properties connectionProps = new Properties();
 		connectionProps.put("user", user);
 		connectionProps.put("password", password);
-		connectionProps.put("oracle.net.CONNECT_TIMEOUT", String.valueOf(timeout * 1000));
-
-
-		final Driver driver = findDriver(folderPath, extractProvider(connectionString));
-
-
-
-		final Connection conn = driver.connect(connectionString, connectionProps);
-		if (conn != null) {
-			LOGGER.log(Level.INFO, "Connection through JDBC successfull!");
-			conn.close();
-		}
+		connectionProps.put("loginTimeout", String.valueOf(timeout * 1000));
+		return connectionProps;
 	}
 
-	public static String getHostFromJdbcConnectionString(final String connectionString) {
+	public Provider getProvider(){
+		Provider provider = extractProvider(connectionString);
+		if (provider == null){
+			System.out.println("Couldn't resolve provider");
+			LogSaver.appendLog(Level.WARNING, "Couldn't resolve provider");
+			System.exit(0);
+		}
+		return provider;
+	}
+
+	private  String getHostFromJdbcConnectionString(final String connectionString) {
 		if (isOracle(connectionString)) {
 			final int beginIndex = connectionString.indexOf("@") + 1;
 			String hostPortSid = connectionString.substring(beginIndex);
@@ -121,8 +121,8 @@ public class ConnectionCheck {
 					return cutoffUrl.substring(1, indexOfLastBracket);
 				}
 			}
-			String[] split = null;
-			if (cutoffUrl.indexOf("/") != -1) {
+			String[] split;
+			if (cutoffUrl.contains("/")) {
 				splitter = "/";
 			}
 			split = cutoffUrl.split(splitter);
@@ -132,180 +132,138 @@ public class ConnectionCheck {
 			}
 			return cutoffUrl;
 		} else if(isMySQL(connectionString)) {
-            String url = connectionString.toLowerCase();
-            String cutoffUrl = getCutoffUrl(url);
-            String[] split = cutoffUrl.split("\\?");
-            String replaced = split[0].replaceAll("/", ":");
-            String[] hostSplit = replaced.split(":");
-            if (hostSplit.length == 0) {
-                return "localhost";
-            }
-            String hostname = hostSplit[0];
-            if (hostname.indexOf(",") > 0) {
-                hostname = hostname.split(",")[0];
-            }
-
-            return hostname;
+            return extractHostAddress(connectionString, MYSQL_PREFIX);
         }
 		else if (isHanaDB(connectionString)){
-
+			return extractHostAddress(connectionString, HANA_DB_PREFIX);
 		}
-		else if (isDB2(connectionString)){}
-		else if (isPostgreSQL(connectionString)){}
-		else if (isSnowflake(connectionString)){}
+		else if (isDB2(connectionString)){
+			return extractHostAddress(connectionString, DB2_PREFIX);
+		}
+		else if (isPostgreSQL(connectionString)){
+			return extractHostAddress(connectionString, POSTGRESQL_PREFIX);
+		}
+		else if (isSnowflake(connectionString)){
+			return extractHostAddress(connectionString, SNOWFLAKE_PREFIX);
+		}
 
 		return "";
 	}
 
-	private static boolean isOracle(final String connectionString) {
+	private boolean isOracle(final String connectionString) {
 		return connectionString != null && connectionString.toLowerCase().startsWith(ORACLE_PREFIX) &&
-				connectionString.indexOf("@") > -1;
+				connectionString.contains("@");
 	}
 
-	private static boolean isSqlServer(final String connectionString) {
+	private boolean isSqlServer(final String connectionString) {
 		return connectionString != null && (connectionString.toLowerCase().startsWith(SQLSERVER_PREFIX) ||
 				connectionString.toLowerCase().startsWith(SQLSERVER_JTDS_PREFIX));
 	}
 
-    private static boolean isMySQL(final String connectionString) {
+    private boolean isMySQL(final String connectionString) {
         return connectionString != null && connectionString.toLowerCase().startsWith(MYSQL_PREFIX);
     }
 
-	private static boolean isHanaDB(final String connectionString) {
+	private boolean isHanaDB(final String connectionString) {
 		return connectionString != null && connectionString.toLowerCase().startsWith(HANA_DB_PREFIX);
 	}
-	private static boolean isDB2(final String connectionString) {
+	private boolean isDB2(final String connectionString) {
 		return connectionString != null && connectionString.toLowerCase().startsWith(DB2_PREFIX);
 	}
-	private static boolean isPostgreSQL(final String connectionString) {
+	private boolean isPostgreSQL(final String connectionString) {
 		return connectionString != null && connectionString.toLowerCase().startsWith(POSTGRESQL_PREFIX);
 	}
-	private static boolean isSnowflake(final String connectionString) {
+	private boolean isSnowflake(final String connectionString) {
 		return connectionString != null && connectionString.toLowerCase().startsWith(SNOWFLAKE_PREFIX);
 	}
 
 
-    private static String getCutoffUrl(String url) {
-        String cutoffUrl = url.substring(13, url.length());
+    private String getCutoffUrl(String url) {
+        String cutoffUrl = url.substring(13);
         if (url.startsWith(MYSQL_LOADBALANCER_PREFIX)) {
-            cutoffUrl = url.substring(MYSQL_LOADBALANCER_PREFIX.length(), url.length());
+            cutoffUrl = url.substring(MYSQL_LOADBALANCER_PREFIX.length());
         }
         if (url.startsWith(MYSQL_REPLICATION_PREFIX)) {
-            cutoffUrl = url.substring(MYSQL_REPLICATION_PREFIX.length(), url.length());
+            cutoffUrl = url.substring(MYSQL_REPLICATION_PREFIX.length());
         }
         if (url.startsWith(MYSQL_SPY)) {
-            cutoffUrl = url.substring(MYSQL_SPY.length(), url.length());
+            cutoffUrl = url.substring(MYSQL_SPY.length());
         }
 		if (url.startsWith(ORACLE_PREFIX)) {
-			cutoffUrl = url.substring(ORACLE_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(ORACLE_PREFIX.length());
 		}
 		if (url.startsWith(SQLSERVER_PREFIX)) {
-			cutoffUrl = url.substring(SQLSERVER_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(SQLSERVER_PREFIX.length());
 		}
 		if (url.startsWith(SQLSERVER_JTDS_PREFIX)) {
-			cutoffUrl = url.substring(SQLSERVER_JTDS_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(SQLSERVER_JTDS_PREFIX.length());
 		}
 		if (url.startsWith(MYSQL_PREFIX)) {
-			cutoffUrl = url.substring(MYSQL_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(MYSQL_PREFIX.length());
 		}
 		if (url.startsWith(HANA_DB_PREFIX)) {
-			cutoffUrl = url.substring(HANA_DB_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(HANA_DB_PREFIX.length());
 		}
 		if (url.startsWith(DB2_PREFIX)) {
-			cutoffUrl = url.substring(DB2_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(DB2_PREFIX.length());
 		}
 		if (url.startsWith(POSTGRESQL_PREFIX)) {
-			cutoffUrl = url.substring(POSTGRESQL_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(POSTGRESQL_PREFIX.length());
 		}
 		if (url.startsWith(SNOWFLAKE_PREFIX)) {
-			cutoffUrl = url.substring(SNOWFLAKE_PREFIX.length(), url.length());
+			cutoffUrl = url.substring(SNOWFLAKE_PREFIX.length());
 		}
         return cutoffUrl;
     }
 
 
-	private static Driver findDriver(String folderPath, DataBase db) throws Exception {
-		File file = new File(folderPath);
-		System.out.println(file.getName());
 
-		return Arrays.stream(Objects.requireNonNull(file.listFiles()))
-				.filter(fl -> fl.getName().endsWith(".jar"))
-				.map(fl -> {
 
-							URL url = null;
-							try {
-								url = fl.toURL();
-							} catch (MalformedURLException e) {
-								System.out.println("Wrong driver's path");
-							}
-							URL[] urls = new URL[]{url};
 
-							ClassLoader cl = new URLClassLoader(urls);
-							try {
-								return (Driver)Class.forName(getDriverClassName(db), true, cl).newInstance();
-
-							} catch (ClassNotFoundException ignored) {
-
-							} catch (InstantiationException e) {
-								System.out.println("Can not instantiate the driver's class");
-							} catch (IllegalAccessException e) {
-								System.out.println("Can not access the driver's class");
-							}
-							return null;
-						}
-				).filter(Objects::nonNull).findFirst().orElseThrow(() -> new Exception("Couldn't find the driver"));
-
-	}
-
-	private static String checkOs(DataBase db){
-		if (db != DataBase.HANA_DB)
-		return System.getProperty("os.name").startsWith("Windows")
-				? "C:/ProgramData/dynatrace/remotepluginmodule/agent/conf/java/libs/"
-				: "/var/lib/dynatrace/remotepluginmodule/agent/conf/userdata/libs/";
-		else return System.getProperty("os.name").startsWith("Windows")
-				? "C:/ProgramData/dynatrace/remotepluginmodule/agent/res/userdata/libs/"
-				: "/var/lib/dynatrace/remotepluginmodule/agent/res/userdata/libs/";
-	}
-	private static String getDriverClassName(DataBase dataBase){
-		switch (dataBase){
-			case MYSQL: return "org.mariadb.jdbc.Driver";
-			case MICROSOFT: return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-			case ORACLE: return "oracle.jdbc.driver.OracleDriver";
-			case DB2: return "com.ibm.db2.jcc.DB2Driver";
-			case HANA_DB: return "com.sap.db.jdbc.Driver";
-			case JTDS: return "net.sourceforge.jtds.jdbc.Driver";
-			case POSTGRESQL: return "org.postgresql.Driver";
-			default: return "";
-		}
-	}
-
-	private static DataBase extractProvider(String connectionString) throws Exception {
+	private Provider extractProvider(String connectionString) {
 		if (connectionString.startsWith(ORACLE_PREFIX)){
-			return DataBase.ORACLE;
+			return Provider.ORACLE;
 		}
 		if (connectionString.startsWith(SQLSERVER_PREFIX)
 				|| connectionString.startsWith(SQLSERVER_JTDS_PREFIX)){
-			return DataBase.MICROSOFT;
+			return Provider.MICROSOFT;
 		}
 		if (connectionString.startsWith(MYSQL_PREFIX) ||
 				connectionString.startsWith(MYSQL_LOADBALANCER_PREFIX) ||
 				connectionString.startsWith(MYSQL_REPLICATION_PREFIX) ||
 				connectionString.startsWith(MYSQL_SPY)){
-			return DataBase.MYSQL;
+			return Provider.MYSQL;
 		}
 		if (connectionString.startsWith(HANA_DB_PREFIX)){
-			return DataBase.HANA_DB;
+			return Provider.HANA_DB;
 		}
 		if (connectionString.startsWith(DB2_PREFIX)){
-			return DataBase.DB2;
+			return Provider.DB2;
 		}
 		if (connectionString.startsWith(POSTGRESQL_PREFIX)){
-			return DataBase.POSTGRESQL;
+			return Provider.POSTGRESQL;
 		}
 		if (connectionString.startsWith(SNOWFLAKE_PREFIX)){
-			return DataBase.SNOWFLAKE;
+			return Provider.SNOWFLAKE;
 		}
-		else throw new Exception();
+		else return null;
+	}
+	private String extractHostAddress(String connectionString, String prefix){
+		String url = connectionString.toLowerCase();
+		url = connectionString.substring(prefix.length(), url.length());
+		String[] split = url.split("\\?");
+		String replaced = split[0].replaceAll("/", ":");
+		String[] hostSplit = replaced.split(":");
+		if (hostSplit.length == 0) {
+			return "localhost";
+		}
+		String hostname = hostSplit[0];
+		if (hostname.indexOf(",") > 0) {
+			hostname = hostname.split(",")[0];
+		}
+
+		return hostname;
+
 	}
 
 
