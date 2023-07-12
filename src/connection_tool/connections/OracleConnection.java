@@ -1,3 +1,7 @@
+package connection_tool.connections;
+
+import connection_tool.LogSaver;
+
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -11,7 +15,7 @@ public class OracleConnection implements IConnection {
     private final String sid;
     private final String username;
     private final String password;
-    private final int timeout;
+    private int timeout;
     private final boolean sslEnabled;
 
     public OracleConnection(Properties properties){
@@ -22,12 +26,18 @@ public class OracleConnection implements IConnection {
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
         this.sid = properties.getProperty("sid");
-        this.timeout = Integer.parseInt(properties.getProperty("timeout"));
+        try {
+            timeout = Integer.parseInt(properties.getProperty("timeout"));
+        }catch (NumberFormatException e){
+            System.out.println("Add timeout time to configuration");
+            System.exit(0);
+        }
 
         try {
             checkProps();
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.exit(0);
         }
 
         LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
@@ -38,7 +48,7 @@ public class OracleConnection implements IConnection {
     @Override
     public String getConnectionString(){
         if (sid.isBlank()){
-            return PREFIX + host + ":" + port + ":" + serviceName;
+            return PREFIX + host + ":" + port + "/" + serviceName;
 
         }else {
             return PREFIX + host + ":" + port + ":" + sid;
@@ -57,7 +67,7 @@ public class OracleConnection implements IConnection {
         Properties properties = new Properties();
         properties.put ("user", username);
         properties.put ("password",password);
-
+        properties.put("oracle.net.CONNECT_TIMEOUT", timeout);
         return properties;
     }
 

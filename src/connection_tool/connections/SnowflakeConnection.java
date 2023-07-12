@@ -1,3 +1,7 @@
+package connection_tool.connections;
+
+import connection_tool.LogSaver;
+
 import java.util.Properties;
 import java.util.logging.Level;
 
@@ -11,7 +15,7 @@ public class SnowflakeConnection implements IConnection {
     private final String warehouse;
     private final String username;
     private final String password;
-    private final int timeout;
+    private int timeout;
 
     public SnowflakeConnection(Properties properties) {
         this.host = properties.getProperty("host");
@@ -21,7 +25,12 @@ public class SnowflakeConnection implements IConnection {
         this.warehouse = properties.getProperty("warehouse");
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
-        this.timeout = Integer.parseInt(properties.getProperty("timeout"));
+        try {
+            this.timeout = Integer.parseInt(properties.getProperty("timeout"));
+        }catch (NumberFormatException e){
+            System.out.println("Add timeout time to configuration");
+            System.exit(0);
+        }
 
         LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
                 "User: " + username + "\n" +
@@ -42,6 +51,7 @@ public class SnowflakeConnection implements IConnection {
         properties.put("schema", schema);
         properties.put("warehouse", warehouse);
         properties.put("proxyPort", port);
+        properties.put("loginTimeout", timeout);
         return properties;
     }
 

@@ -1,3 +1,5 @@
+package connection_tool;
+
 public enum Provider {
     ORACLE,
     MYSQL,

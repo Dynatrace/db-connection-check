@@ -1,3 +1,5 @@
+package connection_tool;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,13 +18,15 @@ public class DriverLoader {
 
     public static Driver findDriver(String folderPath, Provider db) throws Exception {
         File file;
+        String driverName;
         if (folderPath == null){
             file = new File(checkOs(db));
         }else {
             file = new File(folderPath);
         }
 
-        Driver dr = Arrays.stream(file.listFiles())
+
+        return Arrays.stream(file.listFiles())
                 .filter(fl -> fl.getName().endsWith(".jar"))
                 .map(fl -> {
                             URL url = null;
@@ -35,7 +39,11 @@ public class DriverLoader {
 
                             ClassLoader cl = new URLClassLoader(urls);
                             try {
-                                return (Driver)Class.forName(getDriverClassName(db), true, cl).newInstance();
+                                Driver driver = (Driver)Class.forName(getDriverClassName(db), true, cl).newInstance();
+                                LogSaver.appendLog(Level.INFO, "Driver found: " + db.name() + "\n" +
+                                        "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() + "\n" +
+                                        "driver path: " + fl.getAbsolutePath()) ;
+                                return driver;
                             } catch (ClassNotFoundException ignored) {
 
                             } catch (InstantiationException e) {
@@ -50,11 +58,6 @@ public class DriverLoader {
                 ).filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new Exception("Couldn't find the driver"));
-
-        LogSaver.appendLog(Level.INFO, "Driver found: " + db.name() + "\n" +
-                "version: " + dr.getMajorVersion() + "." + dr.getMinorVersion() + "\n" +
-                "driver path: " + file.getAbsolutePath());
-        return dr;
     }
 
 
@@ -66,6 +69,7 @@ public class DriverLoader {
             case DB2: return "com.ibm.db2.jcc.DB2Driver";
             case HANA_DB: return "com.sap.db.jdbc.Driver";
             case POSTGRESQL: return "org.postgresql.Driver";
+            case SNOWFLAKE: return "com.snowflake.client.jdbc.SnowflakeDriver";
             default: return "";
         }
     }

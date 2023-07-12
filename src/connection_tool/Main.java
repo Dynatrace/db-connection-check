@@ -1,3 +1,7 @@
+package connection_tool;
+
+import connection_tool.connections.*;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -21,7 +25,7 @@ public class Main {
 
     private static void run(){
         String folderPath = null;
-        System.out.println("Use custom folder path?\n1) Yes\n2) No");
+        System.out.println("Use custom drivers' folder path?\n1) Yes\n2) No");
         switch (scanner.nextLine()){
             case "1":{
                 System.out.println("Enter folder path:");
@@ -42,7 +46,7 @@ public class Main {
                 connect(connectionCheck.getTimeout(), folderPath, connectionCheck.getProvider(), connectionCheck.getConnectionString(), connectionCheck.getProperties());
                 break;
             case "2":
-                System.out.println("Select database type:\n1) DB2\n2) MSQL\n3) MySQL\n4) Oracle\n5) Snowflake\n6) PostgreSQL");
+                System.out.println("Select database type:\n1) DB2\n2) MSQL\n3) MySQL\n4) Oracle\n5) Snowflake\n6) PostgreSQL\n7) HanaDB");
 
                 switch (scanner.nextLine()){
 
@@ -71,7 +75,7 @@ public class Main {
                         break;
                     }
                     case "5": {
-                        new SnowflakeConnection(getConfigProperties("snowflake.properties"));
+                        dbConn = new SnowflakeConnection(getConfigProperties("snowflake.properties"));
                         ping(dbConn.getHost(), dbConn.getTimeout());
                         connect(dbConn.getTimeout(),folderPath, Provider.SNOWFLAKE, dbConn.getConnectionString(), dbConn.getProperties());
                         break;
@@ -80,6 +84,12 @@ public class Main {
                         dbConn = new PostgreSQLConnection(getConfigProperties("postgresql.properties"));
                         ping(dbConn.getHost(), dbConn.getTimeout());
                         connect(dbConn.getTimeout(),folderPath, Provider.POSTGRESQL, dbConn.getConnectionString(), dbConn.getProperties());
+                        break;
+                    }
+                    case "7":{
+                        dbConn = new HanaDBConnection(getConfigProperties("hanadb.properties"));
+                        ping(dbConn.getHost(), dbConn.getTimeout());
+                        connect(dbConn.getTimeout(),folderPath, Provider.HANA_DB, dbConn.getConnectionString(), dbConn.getProperties());
                         break;
                     }
                     default:{
@@ -98,22 +108,28 @@ public class Main {
         try {
             isReachable = InetAddress.getByName(hostName).isReachable(timeout * 1000);
         } catch (final UnknownHostException e) {
-            LogSaver.appendLog(Level.WARNING, "InetAddress.getByName().isReachable(): got UnknownHostException");
+            LogSaver.appendLog(Level.WARNING, e.getMessage());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         if (isReachable) {
             System.out.println("Host is reachable");
-            LogSaver.appendLog(Level.INFO, "Address is reachable");
+            LogSaver.appendLog(Level.INFO, "Host is reachable");
+        }
+        else  {
+            System.out.println("Host is unreachable");
+            LogSaver.appendLog(Level.INFO, "Host is unreachable");
+            System.exit(0);
         }
     }
     private static Properties getConfigProperties(String configName){
-        String path = "src/resources/" + configName;
+        String path = "src/connection_tool.resources/" + configName;
         Properties appProps = new Properties();
         try {
             appProps.load(new FileInputStream(path));
         } catch (IOException e) {
             System.out.println("Failed to load config files");
+            System.exit(0);
         }
         return appProps;
     }
@@ -121,44 +137,29 @@ public class Main {
     private static void connect(int timeout, String path, Provider provider, String connectionString, Properties connectionProps){
 
 
-        Driver driver;
+        Driver driver = null;
         try {
             driver = DriverLoader.findDriver(path, provider);
         } catch (Exception e) {
             LogSaver.appendLog(Level.WARNING, e.getMessage());
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
+            System.exit(0);
         }
 
         final AtomicBoolean isConnected = new AtomicBoolean(false);
         Connection conn = null;
         try {
-            new Thread(() -> {
-                int counter = 0;
-                while(counter < (timeout + 10) && !isConnected.get()){
-                    counter++;
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                if (!isConnected.get()){
-                    System.out.println("Couldn't connect to DB");
-                    LogSaver.appendLog(Level.WARNING, "Couldn't connect to DB");
-                    System.exit(0);
-                }
-
-            }).start();
             conn = driver.connect(connectionString, connectionProps);
             isConnected.set(true);
-        } catch (SQLException e) {
+        } catch (Exception e) {
+            isConnected.set(true);
             if (e.getMessage().contains("Login failed for user")){
                 LogSaver.appendLog(Level.WARNING, "Couldn't connect, wrong credentials!");
                 System.out.println("Couldn't connect, wrong credentials!");
                 System.exit(0);
             }
             LogSaver.appendLog(Level.WARNING, e.getMessage());
-            System.out.println("error: " + e);
+            System.out.println(e.getMessage());;
         }
         if (conn != null) {
             System.out.println("Connection through JDBC successfull!");
@@ -167,7 +168,7 @@ public class Main {
                 conn.close();
             } catch (SQLException e) {
                 LogSaver.appendLog(Level.WARNING, e.getMessage());
-                throw new RuntimeException(e);
+                System.out.println(e.getMessage());
             }
         }
     }
