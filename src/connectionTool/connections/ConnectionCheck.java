@@ -176,7 +176,7 @@ public class ConnectionCheck{
 
 
     private String getCutoffUrl(String url) {
-        String cutoffUrl = url.substring(13);
+        String cutoffUrl = url;
         if (url.startsWith(MYSQL_LOADBALANCER_PREFIX)) {
             cutoffUrl = url.substring(MYSQL_LOADBALANCER_PREFIX.length());
         }
