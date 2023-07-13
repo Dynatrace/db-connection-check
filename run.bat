@@ -1,1 +1,1 @@
-java -cp lib/*;. ConnectionCheck %*
+java -cp .libs;. -Dconfig=src/connectionTool/resources/config.properties connectionTool.Main  %*

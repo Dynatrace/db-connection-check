@@ -1,4 +1,4 @@
-package connection_tool;
+package connectionTool.utills;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,6 +24,7 @@ public class LogSaver {
             catch (IOException e)
             {
                 System.out.println("Couldn't create the log file");
+                System.exit(0);
             }
         }
         try
@@ -33,8 +34,11 @@ public class LogSaver {
             final String date = LocalDateTime.now()
                     .format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
-            buf.append(date + "\n" +
-            lvl.toString() + ":\n" + text);
+            buf.append(date)
+                    .append(" ")
+                    .append(lvl.toString())
+                    .append(" ")
+                    .append(text);
             buf.newLine();
             buf.newLine();
             buf.close();
@@ -42,6 +46,7 @@ public class LogSaver {
         catch (IOException e)
         {
             System.out.println("Couldn't write to log.txt");
+            System.exit(0);
         }
     }
 }

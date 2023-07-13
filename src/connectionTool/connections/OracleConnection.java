@@ -1,9 +1,7 @@
-package connection_tool.connections;
+package connectionTool.connections;
 
-import connection_tool.LogSaver;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
 public class OracleConnection implements IConnection {
 
@@ -29,45 +27,30 @@ public class OracleConnection implements IConnection {
         try {
             timeout = Integer.parseInt(properties.getProperty("timeout"));
         }catch (NumberFormatException e){
-            System.out.println("Add timeout time to configuration");
+            System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-
-        try {
-            checkProps();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            System.exit(0);
-        }
-
-        LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
-                "User: " + username + "\n" +
-                "Hostname: " + host);
+        verify();
     }
 
     @Override
     public String getConnectionString(){
-        if (sid.isBlank()){
+        if (sid == null || sid.isEmpty()){
             return PREFIX + host + ":" + port + "/" + serviceName;
 
         }else {
             return PREFIX + host + ":" + port + ":" + sid;
         }
     }
-
-    private void checkProps() throws Exception {
-        if (!serviceName.isBlank() && !sid.isBlank()){
-            throw new Exception("Service name and sid can not be both assigned ");
-        }
-    }
-
-
     @Override
     public Properties getProperties(){
         Properties properties = new Properties();
         properties.put ("user", username);
         properties.put ("password",password);
         properties.put("oracle.net.CONNECT_TIMEOUT", timeout);
+        if (sslEnabled){
+            properties.put("CONNECTION_PROPERTY_THIN_SSL_SERVER_DN_MATCH","true");
+        }
         return properties;
     }
 
@@ -81,5 +64,30 @@ public class OracleConnection implements IConnection {
         return timeout;
     }
 
+    @Override
+    public String getPort() {
+        return port;
+    }
 
+    private void verify(){
+        if (!(serviceName == null || serviceName.isEmpty()) && !(sid == null || sid.isEmpty())){
+            System.out.println(("Service name and sid can not be both assigned"));
+            System.exit(0);
+        }
+        if ((serviceName == null || serviceName.isEmpty()) && (sid == null || sid.isEmpty())){
+            System.out.println(("Missing field: service_name or sid"));
+            System.exit(0);
+        }
+        if (host == null || host.isEmpty()) {
+            missingOrEmptyField("host");
+        }
+        if (port == null || port.isEmpty()) {
+            missingOrEmptyField("port");
+        }
+    }
+
+    private void missingOrEmptyField(String field){
+        System.out.println("Missing field: " + field);
+        System.exit(0);
+    }
 }

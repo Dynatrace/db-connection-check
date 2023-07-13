@@ -1,4 +1,7 @@
-package connection_tool;
+package connectionTool.utills;
+
+import connectionTool.connections.Provider;
+import connectionTool.exceptions.DriverNotFoundException;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -18,7 +21,6 @@ public class DriverLoader {
 
     public static Driver findDriver(String folderPath, Provider db) throws Exception {
         File file;
-        String driverName;
         if (folderPath == null){
             file = new File(checkOs(db));
         }else {
@@ -40,24 +42,25 @@ public class DriverLoader {
                             ClassLoader cl = new URLClassLoader(urls);
                             try {
                                 Driver driver = (Driver)Class.forName(getDriverClassName(db), true, cl).newInstance();
-                                LogSaver.appendLog(Level.INFO, "Driver found: " + db.name() + "\n" +
-                                        "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() + "\n" +
+                                LogSaver.appendLog(Level.INFO, "Driver found: " + db.name() + " " +
+                                        "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() + " " +
                                         "driver path: " + fl.getAbsolutePath()) ;
                                 return driver;
                             } catch (ClassNotFoundException ignored) {
 
                             } catch (InstantiationException e) {
                                 System.out.println("Couldn't instantiate the driver's class");
-                                LogSaver.appendLog(Level.WARNING,"Couldn't instantiate the driver's class");
+                                LogSaver.appendLog(Level.WARNING,e.getMessage());
+                                System.exit(0);
                             } catch (IllegalAccessException e) {
                                 System.out.println("Couldn't access the driver's class");
-                                LogSaver.appendLog(Level.WARNING,"Couldn't instantiate the driver's class");
+                                LogSaver.appendLog(Level.WARNING,e.getMessage());
                             }
                             return null;
                         }
                 ).filter(Objects::nonNull)
                 .findFirst()
-                .orElseThrow(() -> new Exception("Couldn't find the driver"));
+                .orElseThrow(() -> new DriverNotFoundException("Couldn't find the driver"));
     }
 
 

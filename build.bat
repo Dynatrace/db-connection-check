@@ -1,2 +1,2 @@
 @echo off
-javac src\*.java -d .
+javac  src\connectionTool\connections\*.java src\connectionTool\*.java src\connectionTool\exceptions\*.java src\connectionTool\utills\*.java -d .

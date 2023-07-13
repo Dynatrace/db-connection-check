@@ -1,4 +1,4 @@
-package connection_tool.connections; /***************************************************
+package connectionTool.connections; /***************************************************
  * dynaTrace Diagnostics (c) dynaTrace software GmbH
  *
  * @file: connection_tool.connections.ConnectionCheck.java
@@ -6,8 +6,7 @@ package connection_tool.connections; /******************************************
  * @author: wiktor
  */
 
-import connection_tool.LogSaver;
-import connection_tool.Provider;
+import connectionTool.utills.LogSaver;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -61,8 +60,8 @@ public class ConnectionCheck{
 		timeout = Integer.parseInt(args[3]);
 		host = getHostFromJdbcConnectionString(connectionString);
 
-		LogSaver.appendLog(Level.INFO, "JDBC String: " + connectionString +  "\n" +
-				"User: " + user + "\n" +
+		LogSaver.appendLog(Level.INFO, "JDBC String: " + connectionString +  " " +
+				"User: " + user + " " +
 				"Hostname: " + host);
 	}
 

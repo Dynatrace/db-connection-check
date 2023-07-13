@@ -1,4 +1,4 @@
-package connection_tool;
+package connectionTool.connections;
 
 public enum Provider {
     ORACLE,

@@ -1,45 +1,38 @@
-package connection_tool.connections;
+package connectionTool.connections;
 
-import connection_tool.LogSaver;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
+public class HanaDBConnection implements IConnection {
 
-public class MySQLConnection implements IConnection {
-
-    private static final String MYSQL_PREFIX = "jdbc:mariadb://";
+    private static final String HANA_DB_PREFIX = "jdbc:sap://";
     private final String host;
     private final String port;
-    private final String databaseName;
     private final String username;
     private final String password;
     private final boolean sslEnabled;
     private int timeout;
 
-    public MySQLConnection(Properties properties) {
+    public HanaDBConnection(Properties properties) {
         this.host = properties.getProperty("host");
         this.port = properties.getProperty("port");
-        this.databaseName = properties.getProperty("db_name");
         this.sslEnabled = Boolean.parseBoolean(properties.getProperty("ssl"));
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
+        this.timeout = 0;
         try {
             this.timeout = Integer.parseInt(properties.getProperty("timeout"));
         }catch (NumberFormatException e){
-            System.out.println("Add timeout time to configuration");
+            System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-
-
-        LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
-                "User: " + username + "\n" +
-                "Hostname: " + host);
+        verify();
     }
+
 
     @Override
     public String getConnectionString() {
-        return MYSQL_PREFIX + host + ":" + port + "/" + databaseName;
+        return HANA_DB_PREFIX + host + ":" + port;
     }
 
     @Override
@@ -47,11 +40,10 @@ public class MySQLConnection implements IConnection {
         var properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
-        properties.put("connectTimeout", timeout * 1000);
+        properties.put("timeout", timeout);
         if (sslEnabled) {
-            properties.put("sslMode", "trust");
-        }else {
-            properties.put("sslMode", "disable");
+            properties.put("encrypt", "true");
+            properties.put("validateCertificate", "true");
         }
         return properties;
     }
@@ -64,5 +56,23 @@ public class MySQLConnection implements IConnection {
     @Override
     public int getTimeout() {
         return timeout;
+    }
+
+    @Override
+    public String getPort() {
+        return port;
+    }
+    private void verify(){
+        if (host == null || host.isEmpty()) {
+            missingOrEmptyField("host");
+        }
+        if (port == null || port.isEmpty()) {
+            missingOrEmptyField("port");
+        }
+    }
+
+    private void missingOrEmptyField(String field){
+        System.out.println("Missing field: " + field);
+        System.exit(0);
     }
 }

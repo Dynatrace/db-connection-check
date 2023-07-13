@@ -1,9 +1,7 @@
-package connection_tool.connections;
+package connectionTool.connections;
 
-import connection_tool.LogSaver;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
 public class SnowflakeConnection implements IConnection {
 
@@ -31,10 +29,7 @@ public class SnowflakeConnection implements IConnection {
             System.out.println("Add timeout time to configuration");
             System.exit(0);
         }
-
-        LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
-                "User: " + username + "\n" +
-                "Hostname: " + host);
+        verify();
     }
 
     @Override
@@ -64,4 +59,17 @@ public class SnowflakeConnection implements IConnection {
     public int getTimeout() {
         return timeout;
     }
+
+    @Override
+    public String getPort() {
+        return port;
+    }
+    private void verify(){
+
+        if (host == null || host.isEmpty()) {
+            System.out.println("Missing field: host" );
+            System.exit(0);
+        }
+    }
+
 }

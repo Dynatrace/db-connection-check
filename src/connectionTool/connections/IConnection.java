@@ -1,4 +1,4 @@
-package connection_tool.connections;
+package connectionTool.connections;
 
 import java.util.Properties;
 
@@ -8,4 +8,5 @@ public interface IConnection {
     Properties getProperties();
     String getHost();
     int getTimeout();
+    String getPort();
 }

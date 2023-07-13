@@ -1,9 +1,7 @@
-package connection_tool.connections;
+package connectionTool.connections;
 
-import connection_tool.LogSaver;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
 public class MSQLConnection implements IConnection {
 
@@ -31,13 +29,10 @@ public class MSQLConnection implements IConnection {
         try {
             this.timeout = Integer.parseInt(properties.getProperty("timeout"));
         }catch (NumberFormatException e){
-            System.out.println("Add timeout time to configuration");
+            System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-
-        LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
-                "User: " + username + "\n" +
-                "Hostname: " + host);
+        verify();
     }
 
 
@@ -74,5 +69,23 @@ public class MSQLConnection implements IConnection {
     @Override
     public int getTimeout() {
         return timeout;
+    }
+
+    @Override
+    public String getPort() {
+        return port;
+    }
+    private void verify(){
+        if (host == null || host.isEmpty()) {
+            missingOrEmptyField("host");
+        }
+        if (port == null || port.isEmpty()) {
+            missingOrEmptyField("port");
+        }
+    }
+
+    private void missingOrEmptyField(String field){
+        System.out.println("Missing field: " + field);
+        System.exit(0);
     }
 }

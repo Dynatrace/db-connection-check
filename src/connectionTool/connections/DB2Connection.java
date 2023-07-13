@@ -1,9 +1,6 @@
-package connection_tool.connections;
-
-import connection_tool.LogSaver;
+package connectionTool.connections;
 
 import java.util.Properties;
-import java.util.logging.Level;
 
 public class DB2Connection implements IConnection {
 
@@ -28,12 +25,10 @@ public class DB2Connection implements IConnection {
         try {
             this.timeout = Integer.parseInt(properties.getProperty("timeout"));
         }catch (NumberFormatException e){
-            System.out.println("Add timeout time to configuration");
+            System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-        LogSaver.appendLog(Level.INFO, "JDBC String: " + getConnectionString()+  "\n" +
-                "User: " + username + "\n" +
-                "Hostname: " + host);
+        verify();
     }
 
     @Override
@@ -62,4 +57,24 @@ public class DB2Connection implements IConnection {
         return timeout;
     }
 
+    @Override
+    public String getPort() {
+        return port;
+    }
+    private void verify(){
+        if (host == null || host.isEmpty()) {
+            missingOrEmptyField("host");
+        }
+        if (port == null || port.isEmpty()) {
+            missingOrEmptyField("port");
+        }
+        if (databaseName == null || databaseName.isEmpty()) {
+            missingOrEmptyField("db_name");
+        }
+    }
+
+    private void missingOrEmptyField(String field){
+        System.out.println("Missing field: " + field);
+        System.exit(0);
+    }
 }
