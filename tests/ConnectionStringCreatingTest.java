@@ -25,14 +25,14 @@ public class ConnectionStringCreatingTest {
         assertEquals("jdbc:db2://123.456.789.0:1234/db", conn.getConnectionString());
     }
     @Test
-    void testDriverLoader_shouldThrowNullPointerExceptionWhenWrongPathGiven(){
+    void testDriverLoader_shouldThrowNullPointerExceptionWhenInvalidPathGiven(){
         String path = "C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\conf\\userdata\\libos";
 
         assertThrows(NullPointerException.class, () -> DriverLoader.findDriver(path, Provider.DB2));
     }
     @Test
     void testDriverLoader_shouldThrowExceptionWhenDriverNotFound(){
-        String path = "src/connection_tool/resources";
+        String path = "src/connectionTool/resources";
 
         assertThrows(DriverNotFoundException.class, () -> DriverLoader.findDriver(path, Provider.DB2));
     }
