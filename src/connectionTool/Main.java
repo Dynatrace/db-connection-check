@@ -11,6 +11,7 @@ import connectionTool.connections.OracleConnection;
 import connectionTool.connections.PostgreSQLConnection;
 import connectionTool.connections.Provider;
 import connectionTool.connections.SnowflakeConnection;
+import connectionTool.exceptions.DriverNotFoundException;
 import connectionTool.utills.DriverLoader;
 import connectionTool.utills.LogSaver;
 
@@ -28,7 +29,7 @@ import java.util.logging.Level;
 
 public class Main {
 
-    private final static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
     private static IConnection dbConn;
 
     public static void main(String[] args) {
@@ -42,6 +43,7 @@ public class Main {
             case "1":{
                 System.out.println("Enter folder path:");
                 folderPath = scanner.nextLine();
+                break;
             }
             case "2":{
                 break;
@@ -123,9 +125,12 @@ public class Main {
             isReachable = InetAddress.getByName(hostName).isReachable(timeout * 1000);
         } catch (final UnknownHostException e) {
             LogSaver.appendLog(Level.WARNING, e.getMessage());
+            System.out.println("Host is unknown");
+            System.exit(0);
         } catch (IOException e) {
-            System.out.println("Couldn't ping host, check logs for exception details!");
+            System.out.println("Couldn't ping host, check logs for details!");
             LogSaver.appendLog(Level.WARNING, e.getMessage());
+            System.exit(0);
         }
         if (isReachable) {
             System.out.println("Host is reachable");
@@ -141,7 +146,9 @@ public class Main {
         String propFile = System.getProperty("config");
         Properties props = new Properties();
         try {
-            props.load(new FileInputStream(propFile));
+            FileInputStream inputStream = new FileInputStream(propFile);
+            props.load(inputStream);
+            inputStream.close();
         } catch (IOException e) {
             System.out.println("Failed to load config files");
             LogSaver.appendLog(Level.WARNING, e.getMessage());
@@ -156,12 +163,11 @@ public class Main {
         Driver driver = null;
         try {
             driver = DriverLoader.findDriver(path, provider);
-        } catch (Exception e) {
+        } catch (DriverNotFoundException e) {
+            System.out.println("Couldn't load the driver");
             LogSaver.appendLog(Level.WARNING, e.getMessage());
-            System.out.println("Couldn't load driver, check logs for details");
             System.exit(0);
         }
-
         Connection conn = null;
         try {
             driver.connect(connectionString, connectionProps)
@@ -181,7 +187,9 @@ public class Main {
             } catch (SQLException e) {
                 LogSaver.appendLog(Level.WARNING, e.getMessage());
                 System.out.println("Connection problems, check logs for details");
+                System.exit(0);
             }
         }
     }
+
 }
