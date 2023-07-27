@@ -6,13 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.logging.Level;
 
 public class LogSaver {
 
     private static final String LOG_FILE_DIRECTORY = "log.txt";
     private static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
-    public static void appendLog(Level lvl, String text)
+    public static void appendLog(String text)
     {
         File logFile = new File(LOG_FILE_DIRECTORY);
         if (!logFile.exists())
@@ -35,8 +34,6 @@ public class LogSaver {
                     .format(DateTimeFormatter.ofPattern(DATE_FORMAT));
 
             buf.append(date)
-                    .append(" ")
-                    .append(lvl.toString())
                     .append(" ")
                     .append(text);
             buf.newLine();

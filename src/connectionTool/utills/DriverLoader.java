@@ -2,6 +2,7 @@ package connectionTool.utills;
 
 import connectionTool.connections.Provider;
 import connectionTool.exceptions.DriverNotFoundException;
+import connectionTool.exceptions.ProviderNotResolvedException;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +12,6 @@ import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.logging.Level;
 
 public class DriverLoader {
 
@@ -38,7 +38,7 @@ public class DriverLoader {
                             ClassLoader cl = new URLClassLoader(urls);
                             try {
                                 Driver driver = (Driver)Class.forName(getDriverClassName(db), true, cl).getConstructor().newInstance();
-                                LogSaver.appendLog(Level.INFO, "Driver found: " + db.name() + " " +
+                                LogSaver.appendLog("Driver found: " + db.name() + " " +
                                         "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() + " " +
                                         "driver path: " + fl.getAbsolutePath());
                                 return driver;
@@ -46,9 +46,8 @@ public class DriverLoader {
 
                             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                                      NoSuchMethodException e) {
-                                System.out.println("Couldn't load the driver");
-                                LogSaver.appendLog(Level.WARNING, e.getMessage());
-                                System.exit(0);
+                                LogSaver.appendLog(e.getMessage());
+                                throw new DriverNotFoundException("Couldn't load the driver");
                             }
                     return null;
                         }
@@ -65,7 +64,7 @@ public class DriverLoader {
             case HANA_DB: return "com.sap.db.jdbc.Driver";
             case POSTGRESQL: return "org.postgresql.Driver";
             case SNOWFLAKE: return "com.snowflake.client.jdbc.SnowflakeDriver";
-            default: return "";
+            default: throw new ProviderNotResolvedException("Couldn't resolve provider");
         }
     }
 
@@ -104,7 +103,7 @@ public class DriverLoader {
     }
 
     private static void errorCall(String message){
-        LogSaver.appendLog(Level.WARNING, message);
+        LogSaver.appendLog(message);
         System.out.println(message);
         System.exit(0);
     }

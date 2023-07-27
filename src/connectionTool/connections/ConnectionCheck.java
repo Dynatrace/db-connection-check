@@ -8,10 +8,7 @@ package connectionTool.connections; /*******************************************
 
 import connectionTool.utills.LogSaver;
 
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.Scanner;
-import java.util.logging.Level;
 
 
 /**
@@ -32,35 +29,21 @@ public class ConnectionCheck{
 	private static final String POSTGRESQL_PREFIX = "jdbc:postgresql://";
 	private static final String SNOWFLAKE_PREFIX = "jdbc:snowflake://";
 
-
-	private final static Scanner scanner = new Scanner(System.in);
-
-	private String connectionString;
+	private final String connectionString;
 	private final String user;
 	private final String password;
 	private final String host;
 	private final int timeout;
 
-	public ConnectionCheck() {
-		System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
-		final String argumentsString = scanner.nextLine();
-		final String[] args = argumentsString.split(" ");
-		if (Arrays.asList(args).contains(" ")){
-			System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
-			System.exit(0);
-		}
+	public ConnectionCheck(String connectionString, String user, String password, int timeout) {
+		this.connectionString = connectionString;
+		this.user = user;
+		this.password = password;
+		this.timeout = timeout;
 
-		if (args.length != 4) {
-			System.out.println("Please provide arguments: JDBC string, user name, password, timeout");
-			System.exit(0);
-		}
-		connectionString = args[0];
-		user = args[1];
-		password = args[2];
-		timeout = Integer.parseInt(args[3]);
 		host = getHostFromJdbcConnectionString(connectionString);
 
-		LogSaver.appendLog(Level.INFO, "JDBC String: " + connectionString +  " " +
+		LogSaver.appendLog("JDBC String: " + connectionString +  " " +
 				"User: " + user + " " +
 				"Hostname: " + host);
 	}
@@ -84,7 +67,7 @@ public class ConnectionCheck{
 		Provider provider = extractProvider(connectionString);
 		if (provider == null){
 			System.out.println("Couldn't resolve provider");
-			LogSaver.appendLog(Level.WARNING, "Couldn't resolve provider");
+			LogSaver.appendLog("Couldn't resolve provider");
 			System.exit(0);
 		}
 		return provider;
