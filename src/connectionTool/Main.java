@@ -32,6 +32,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -43,24 +44,28 @@ public class Main {
 
     private static void run(String[] args){
         args = new String[]{"-m","2","-cs","jdbc:db2://db2DateInstance.lab.dynatrace.org:25000/SAMPLE","-u","db2inst1","-p", "labpass","-t" ,"30"};
+        LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
+
         ConnectionMode connectionMode;
+        List<String> argList = Arrays.stream(args).collect(Collectors.toList());
+
+        if (!argList.contains("-m")){
+            throw new CommandLineArgumentException("Argument mode (-m) must be provided");
+        }
 
         String modeArgValue = args[Arrays.stream(args).collect(Collectors.toList()).indexOf("-m") + 1];
-
-
+        if (!modeArgValue.equals("1") && !modeArgValue.equals("2")){
+            throw new CommandLineArgumentException("Argument mode (-m) must equal 1 or 2 and You have provided " + modeArgValue + ". Try changing it");
+        }
 
         Options selectedOptions;
 
         if (modeArgValue.equals("1")){
             selectedOptions = getConfigOptions();
-            System.out.println(selectedOptions.getOptions());
             connectionMode = ConnectionMode.CONFIG;
-        }else if (modeArgValue.equals("2")){
-            selectedOptions = getDetailsOptions();
-            System.out.println(selectedOptions.getOptions());
-            connectionMode = ConnectionMode.DETAILS;
         }else {
-            throw new CommandLineArgumentException("Argument mode (-m) must equal 1 or 2 and You have provided " + modeArgValue + ". Try changing it");
+            selectedOptions = getDetailsOptions();
+            connectionMode = ConnectionMode.DETAILS;
         }
         CommandLineParser parser = new DefaultParser();
         CommandLine commandLine;
@@ -268,7 +273,7 @@ public class Main {
             slashType = "/";
         }
         int folderIndex = configPath.lastIndexOf(slashType);
-        String propertyName = configPath.substring(folderIndex + 1, configPath.length());
+        String propertyName = configPath.substring(folderIndex + 1);
         switch (propertyName){
             case "db2.properties":
                 dbConn = new DB2Connection(getConfigProperties(configPath));
