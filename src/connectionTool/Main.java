@@ -11,12 +11,11 @@ import connectionTool.connections.OracleConnection;
 import connectionTool.connections.PostgreSQLConnection;
 import connectionTool.connections.Provider;
 import connectionTool.connections.SnowflakeConnection;
-import connectionTool.exceptions.CommandLineArgumentException;
 import connectionTool.exceptions.DriverNotFoundException;
-import connectionTool.exceptions.ConfigUnknownException;
 import connectionTool.utills.ConnectionMode;
 import connectionTool.utills.DriverLoader;
 import connectionTool.utills.LogSaver;
+import connectionTool.utills.OptionsLoader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -43,38 +42,39 @@ public class Main {
     }
 
     private static void run(String[] args){
-        args = new String[]{"-m","2","-cs","jdbc:db2://db2DateInstance.lab.dynatrace.org:25000/SAMPLE","-u","db2inst1","-p", "labpass","-t" ,"30"};
         LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
 
         ConnectionMode connectionMode;
         List<String> argList = Arrays.stream(args).collect(Collectors.toList());
 
         if (!argList.contains("-m")){
-            throw new CommandLineArgumentException("Argument mode (-m) must be provided");
+            System.out.println("Argument mode (-m) must be provided");
+            System.exit(0);
         }
 
         String modeArgValue = args[Arrays.stream(args).collect(Collectors.toList()).indexOf("-m") + 1];
         if (!modeArgValue.equals("1") && !modeArgValue.equals("2")){
-            throw new CommandLineArgumentException("Argument mode (-m) must equal 1 or 2 and You have provided " + modeArgValue + ". Try changing it");
+            System.out.println("Argument mode (-m) must equal 1 or 2 and You have provided " + modeArgValue + ". Try changing it");
+            System.exit(0);
         }
 
         Options selectedOptions;
 
         if (modeArgValue.equals("1")){
-            selectedOptions = getConfigOptions();
-            connectionMode = ConnectionMode.CONFIG;
-        }else {
-            selectedOptions = getDetailsOptions();
+            selectedOptions = OptionsLoader.getDetailsOptions();
             connectionMode = ConnectionMode.DETAILS;
+        }else {
+            selectedOptions = OptionsLoader.getConfigOptions();
+            connectionMode = ConnectionMode.CONFIG;
         }
         CommandLineParser parser = new DefaultParser();
-        CommandLine commandLine;
+        CommandLine commandLine = null;
         try {
             commandLine = parser.parse(selectedOptions, args);
         } catch (ParseException e) {
             System.out.println("Couldn't parse command line arguments");
             LogSaver.appendLog("Couldn't parse command line arguments: " + e);
-            throw new RuntimeException(e);
+            System.exit(0);
         }
 
         String folderPath = commandLine.getOptionValue("dp");
@@ -90,7 +90,6 @@ public class Main {
             makeConnection(commandLine.getOptionValue("c"), folderPath);
         }
     }
-
     private static void ping(String hostName, int timeout){
         boolean isReachable = false;
         try {
@@ -122,7 +121,7 @@ public class Main {
             inputStream.close();
         } catch (IOException e) {
             System.out.println("Failed to load config files");
-            LogSaver.appendLog(e.getMessage());
+            LogSaver.appendLog("Failed to load config files: " + e.getMessage());
             System.exit(0);
         }
         return props;
@@ -144,8 +143,8 @@ public class Main {
             conn = driver.connect(connectionString, connectionProps);
 
         } catch (Exception e) {
-            LogSaver.appendLog(e.getMessage());
-            System.out.println("Couldn't connect, to database, check logs for details");
+            LogSaver.appendLog("Couldn't connect, to database: " + e.getMessage());
+            System.out.println("Couldn't connect, to database");
             System.exit(0);
         }
         if (conn != null) {
@@ -154,118 +153,13 @@ public class Main {
             try {
                 conn.close();
             } catch (SQLException e) {
-                LogSaver.appendLog(e.getMessage());
+                LogSaver.appendLog("Connection problems: " + e.getMessage());
                 System.out.println("Connection problems, check logs for details");
                 System.exit(0);
             }
         }
     }
 
-    private static Options getDetailsOptions(){
-        Option modeArg = Option.builder("m")
-                .longOpt("mode")
-                .hasArg()
-                .required(true)
-                .desc("provide connection mode:\n" +
-                        "1 - with details\n" +
-                        "2 - with config\n")
-                .type(Integer.class)
-                .valueSeparator('=')
-                .build();
-        Option connectionStringArg = Option.builder("cs")
-                .longOpt("connection_string")
-                .hasArg()
-                .required(true)
-                .desc("provide connection string, for example: jdbc:mysql://HOST/DATABASE")
-                .type(String.class)
-                .valueSeparator('=')
-                .build();
-        Option usernameArg = Option.builder("u")
-                .longOpt("username")
-                .hasArg()
-                .required(true)
-                .desc("provide username")
-                .type(String.class)
-                .valueSeparator('=')
-                .build();
-        Option passwordArg = Option.builder("p")
-                .longOpt("password")
-                .hasArg()
-                .required(true)
-                .desc("provide password")
-                .type(String.class)
-                .valueSeparator('=')
-                .build();
-        Option timeoutArg = Option.builder("t")
-                .longOpt("timeout")
-                .hasArg()
-                .required(true)
-                .desc("provide timeout")
-                .type(Integer.class)
-                .valueSeparator('=')
-                .build();
-        Option driverPathArg = Option.builder("dp")
-                .longOpt("driver_path")
-                .hasArg()
-                .required(false)
-                .desc("provide path to the folder where your drivers are stored")
-                .type(String.class)
-                .valueSeparator('=')
-                .build();
-
-        Options options = new Options();
-        options.addOption(modeArg);
-        options.addOption(connectionStringArg);
-        options.addOption(usernameArg);
-        options.addOption(passwordArg);
-        options.addOption(timeoutArg);
-        options.addOption(driverPathArg);
-
-        return options;
-    }
-
-    private static Options getConfigOptions(){
-
-        Option configArg = Option.builder("c")
-                .longOpt("config")
-                .hasArg()
-                .required(true)
-                .desc("provide path to the property file:\n" +
-                        "db2.properties for DB2\n" +
-                        "hanadb.properties for HANADB\n" +
-                        "msql.properties for MSSQL\n" +
-                        "mysql.properties for MySQL\n" +
-                        "oracle.properties for OracleDB\n" +
-                        "postgresql.properties for PostgreSQL\n" +
-                        "snowflake.properties for SnowflakeDB\n")
-                .type(String.class)
-                .valueSeparator('=')
-                .build();
-        Option modeArg = Option.builder("m")
-                .longOpt("mode")
-                .hasArg()
-                .required(true)
-                .desc("provide connection mode:\n" +
-                        "1 - with details\n" +
-                        "2 - with config")
-                .type(Integer.class)
-                .valueSeparator('=')
-                .build();
-        Option driverPathArg = Option.builder("dp")
-                .longOpt("driver_path")
-                .hasArg()
-                .required(true)
-                .desc("provide path to the folder where your drivers are stored")
-                .type(String.class)
-                .valueSeparator('=')
-                .build();
-        Options options = new Options();
-
-        options.addOption(configArg);
-        options.addOption(driverPathArg);
-        options.addOption(modeArg);
-        return options;
-    }
     private static void makeConnection(String configPath, String driverPath){
         IConnection dbConn;
         String slashType = "\\";
@@ -311,7 +205,9 @@ public class Main {
                 connect(dbConn.getTimeout(),driverPath, Provider.SNOWFLAKE, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             default:
-                throw new ConfigUnknownException("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
+                System.out.println("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
+                LogSaver.appendLog("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
+                System.exit(0);
         }
     }
 }

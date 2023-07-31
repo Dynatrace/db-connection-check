@@ -1,6 +1,8 @@
 package connectionTool.connections;
 
 
+import connectionTool.utills.Verifier;
+
 import java.util.Properties;
 
 public class SnowflakeConnection implements IConnection {
@@ -29,7 +31,7 @@ public class SnowflakeConnection implements IConnection {
             System.out.println("Add timeout time to configuration");
             System.exit(0);
         }
-        verify();
+        Verifier.verifyConfig(this, "host");
     }
 
     @Override
@@ -63,13 +65,6 @@ public class SnowflakeConnection implements IConnection {
     @Override
     public String getPort() {
         return port;
-    }
-    private void verify(){
-
-        if (host == null || host.isEmpty()) {
-            System.out.println("Missing field: host" );
-            System.exit(0);
-        }
     }
 
 }

@@ -1,6 +1,8 @@
 package connectionTool.connections;
 
 
+import connectionTool.utills.Verifier;
+
 import java.util.Properties;
 
 public class OracleConnection implements IConnection {
@@ -78,16 +80,7 @@ public class OracleConnection implements IConnection {
             System.out.println(("Missing field: service_name or sid"));
             System.exit(0);
         }
-        if (host == null || host.isEmpty()) {
-            missingOrEmptyField("host");
-        }
-        if (port == null || port.isEmpty()) {
-            missingOrEmptyField("port");
-        }
-    }
 
-    private void missingOrEmptyField(String field){
-        System.out.println("Missing field: " + field);
-        System.exit(0);
+        Verifier.verifyConfig(this, "host","port");
     }
 }

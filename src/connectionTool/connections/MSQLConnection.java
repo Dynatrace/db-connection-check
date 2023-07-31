@@ -1,6 +1,7 @@
 package connectionTool.connections;
 
 
+import connectionTool.utills.Verifier;
 import java.util.Properties;
 
 public class MSQLConnection implements IConnection {
@@ -32,7 +33,7 @@ public class MSQLConnection implements IConnection {
             System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-        verify();
+        Verifier.verifyConfig(this, "host","port");
     }
 
 
@@ -74,18 +75,5 @@ public class MSQLConnection implements IConnection {
     @Override
     public String getPort() {
         return port;
-    }
-    private void verify(){
-        if (host == null || host.isEmpty()) {
-            missingOrEmptyField("host");
-        }
-        if (port == null || port.isEmpty()) {
-            missingOrEmptyField("port");
-        }
-    }
-
-    private void missingOrEmptyField(String field){
-        System.out.println("Missing field: " + field);
-        System.exit(0);
     }
 }

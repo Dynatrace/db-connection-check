@@ -2,7 +2,6 @@ package connectionTool.utills;
 
 import connectionTool.connections.Provider;
 import connectionTool.exceptions.DriverNotFoundException;
-import connectionTool.exceptions.ProviderNotResolvedException;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +14,7 @@ import java.util.Objects;
 
 public class DriverLoader {
 
-    private static final String MAIN_DRIVER_PATH_WINDOWS = "C:\\ProgramFiles\\dynatrace\\remotepluginmodule\\agent\\res\\java\\libs\\";
+    private static final String MAIN_DRIVER_PATH_WINDOWS = "C:\\Program Files\\dynatrace\\remotepluginmodule\\agent\\res\\java\\libs";
     private static final String MAIN_DRIVER_PATH_LINUX = "\\var\\lib\\dynatrace\\remotepluginmodule\\agent\\res\\java\\libs\\";
     private static final String OTHER_DRIVER_PATH_WINDOWS = "C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\res\\userdata\\libs\\";         //for DB2 and HANA
     private static final String OTHER_DRIVER_PATH_LINUX = "\\var\\lib\\dynatrace\\remotepluginmodule\\agent\\res\\userdata\\libs\\";
@@ -23,7 +22,6 @@ public class DriverLoader {
     public static Driver findDriver(String folderPath, Provider db) throws DriverNotFoundException {
         String path = getPath(folderPath, db);
         File driverFolder = getDriverFolder(path);
-
         return Arrays.stream(Objects.requireNonNull(driverFolder.listFiles()))
                 .map(fl -> {
                             URL url = null;
@@ -43,11 +41,11 @@ public class DriverLoader {
                                         "driver path: " + fl.getAbsolutePath());
                                 return driver;
                             } catch (ClassNotFoundException ignored) {
-
                             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                                      NoSuchMethodException e) {
                                 LogSaver.appendLog(e.getMessage());
-                                throw new DriverNotFoundException("Couldn't load the driver");
+                                System.out.println("Couldn't load the driver");
+                                System.exit(0);
                             }
                     return null;
                         }
@@ -64,7 +62,7 @@ public class DriverLoader {
             case HANA_DB: return "com.sap.db.jdbc.Driver";
             case POSTGRESQL: return "org.postgresql.Driver";
             case SNOWFLAKE: return "com.snowflake.client.jdbc.SnowflakeDriver";
-            default: throw new ProviderNotResolvedException("Couldn't resolve provider");
+            default: return "";
         }
     }
 
