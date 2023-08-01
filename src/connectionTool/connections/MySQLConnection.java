@@ -29,7 +29,7 @@ public class MySQLConnection implements IConnection {
             System.out.println("Add timeout time to configuration");
             System.exit(0);
         }
-        Verifier.verifyConfig(this, "host","port","db_name");
+        Verifier.verifyConfig(this, "host","port","databaseName");
     }
 
     @Override

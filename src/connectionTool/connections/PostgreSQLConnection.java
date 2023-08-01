@@ -30,7 +30,7 @@ public class PostgreSQLConnection implements IConnection {
             System.out.println("Add timeout time to configuration");
             System.exit(0);
         }
-        Verifier.verifyConfig(this, "host","db_name");
+        Verifier.verifyConfig(this, "host","databaseName");
     }
 
     @Override

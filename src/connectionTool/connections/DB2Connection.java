@@ -29,7 +29,7 @@ public class DB2Connection implements IConnection {
             System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-        Verifier.verifyConfig(this, "host","port","db_name");
+        Verifier.verifyConfig(this, "host","port","databaseName");
     }
 
     @Override

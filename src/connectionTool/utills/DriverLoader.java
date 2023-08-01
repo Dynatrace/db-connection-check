@@ -88,7 +88,7 @@ public class DriverLoader {
     private static File getDriverFolder(String path){
         File file = new File(path);
         if (file.listFiles() == null){
-            errorCall("Wrong path: " + path);
+            errorCall("Wrong driver path: " + path);
         }
         if (Objects.requireNonNull(file.listFiles()).length == 0){
             errorCall("Path: "+ path + " is empty");
