@@ -55,10 +55,13 @@ public class MSQLConnection implements IConnection {
 
         if (sslEnabled){
             properties.put("encrypt", "true");
+            if (validateCertificates){
+                properties.put("trustServerCertificate", "true");
+            }else {
+                properties.put("trustServerCertificate", "false");
+            }
         }
-        if (validateCertificates){
-            properties.put("trustServerCertificate", "true");
-        }
+
         return properties;
     }
 

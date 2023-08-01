@@ -49,6 +49,8 @@ public class PostgreSQLConnection implements IConnection {
         properties.put("loginTimeout", timeout);
         if (sslEnabled) {
             properties.put("ssl", "true");
+            properties.put("sslmode", "verify-full");
+            properties.put("sslfactory","org.postgresql.ssl.DefaultJavaSSLFactory");
         }
         return properties;
     }

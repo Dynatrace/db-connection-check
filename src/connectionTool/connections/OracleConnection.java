@@ -51,7 +51,9 @@ public class OracleConnection implements IConnection {
         properties.put ("password",password);
         properties.put("oracle.net.CONNECT_TIMEOUT", timeout);
         if (sslEnabled){
-            properties.put("CONNECTION_PROPERTY_THIN_SSL_SERVER_DN_MATCH","true");
+            properties.put("oracle.net.ssl_server_dn_match","true");
+            properties.put("javax.net.ssl.trustStorePassword", "sqlds_truststore");
+            properties.put("javax.net.ssl.trustStoreType", "PKCS12");
         }
         return properties;
     }

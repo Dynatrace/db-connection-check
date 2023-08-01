@@ -1,6 +1,9 @@
 package connectionTool;
 
 
+import com.beust.jcommander.JCommander;
+import connectionTool.cmd.ConfigArguments;
+import connectionTool.cmd.DetailsArgument;
 import connectionTool.connections.ConnectionCheck;
 import connectionTool.connections.DB2Connection;
 import connectionTool.connections.HanaDBConnection;
@@ -15,13 +18,6 @@ import connectionTool.exceptions.DriverNotFoundException;
 import connectionTool.utills.ConnectionMode;
 import connectionTool.utills.DriverLoader;
 import connectionTool.utills.LogSaver;
-import connectionTool.utills.OptionsLoader;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -31,10 +27,8 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -43,51 +37,51 @@ public class Main {
 
     private static void run(String[] args){
         LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
+        DetailsArgument detailsArgument = new DetailsArgument();
+        ConfigArguments configArguments = new ConfigArguments();
+        JCommander jc = JCommander.newBuilder()
+                .addCommand(detailsArgument)
+                .addCommand(configArguments)
+                .build();
+        jc.parse(args);
+        String parsedCmdStr = jc.getParsedCommand();
+        ConnectionMode connectionMode = null;
+        switch (parsedCmdStr) {
+            case "details":
+                connectionMode = ConnectionMode.DETAILS;
+                break;
 
-        ConnectionMode connectionMode;
-        List<String> argList = Arrays.stream(args).collect(Collectors.toList());
+            case "config":
+                connectionMode = ConnectionMode.CONFIG;
+                break;
 
-        if (!argList.contains("-m")){
-            System.out.println("Argument mode (-m) must be provided");
-            System.exit(0);
+            default:
+                System.err.println("Invalid command: " + parsedCmdStr);
+                System.exit(0);
         }
-
-        String modeArgValue = args[Arrays.stream(args).collect(Collectors.toList()).indexOf("-m") + 1];
-        if (!modeArgValue.equals("1") && !modeArgValue.equals("2")){
-            System.out.println("Argument mode (-m) must equal 1 or 2 and You have provided " + modeArgValue + ". Try changing it");
-            System.exit(0);
-        }
-
-        Options selectedOptions;
-
-        if (modeArgValue.equals("1")){
-            selectedOptions = OptionsLoader.getDetailsOptions();
-            connectionMode = ConnectionMode.DETAILS;
-        }else {
-            selectedOptions = OptionsLoader.getConfigOptions();
-            connectionMode = ConnectionMode.CONFIG;
-        }
-        CommandLineParser parser = new DefaultParser();
-        CommandLine commandLine = null;
-        try {
-            commandLine = parser.parse(selectedOptions, args);
-        } catch (ParseException e) {
-            System.out.println("Couldn't parse command line arguments");
-            LogSaver.appendLog("Couldn't parse command line arguments: " + e);
-            System.exit(0);
-        }
-
-        String folderPath = commandLine.getOptionValue("dp");
 
         if (connectionMode == ConnectionMode.DETAILS){
-            ConnectionCheck connectionCheck = new ConnectionCheck(commandLine.getOptionValue("cs"),
-                    commandLine.getOptionValue("u"),
-                    commandLine.getOptionValue("p"), Integer.parseInt(commandLine.getOptionValue("t")));
+            if (detailsArgument.getHelp()){
+                jc.usage();
+                System.exit(0);
+            }
+            System.out.println(detailsArgument.getDriverPath());
+            ConnectionCheck connectionCheck = new ConnectionCheck(detailsArgument.getConnectionString(),
+                    detailsArgument.getUsername(),
+                    detailsArgument.getPassword(),
+                    detailsArgument.getTimeout());
             ping(connectionCheck.getHost(), connectionCheck.getTimeout());
-            connect(connectionCheck.getTimeout(), folderPath, connectionCheck.getProvider(), connectionCheck.getConnectionString(), connectionCheck.getProperties());
+            connect(connectionCheck.getTimeout(), detailsArgument.getDriverPath(),
+                    connectionCheck.getProvider(),
+                    connectionCheck.getConnectionString(),
+                    connectionCheck.getProperties());
         }
-        if (connectionMode == ConnectionMode.CONFIG){
-            makeConnection(commandLine.getOptionValue("cp"), folderPath);
+        else {
+            if (configArguments.getHelp()){
+                jc.usage();
+                System.exit(0);
+            }
+            makeConnection(configArguments.getConfigPath(), configArguments.getDriverPath());
         }
     }
     private static void ping(String hostName, int timeout){
@@ -141,7 +135,6 @@ public class Main {
             driver.connect(connectionString, connectionProps)
                     .setNetworkTimeout(Executors.newFixedThreadPool(1), timeout * 1000);
             conn = driver.connect(connectionString, connectionProps);
-
         } catch (Exception e) {
             LogSaver.appendLog("Couldn't connect, to database: " + e.getMessage());
             System.out.println("Couldn't connect, to database");
@@ -161,7 +154,7 @@ public class Main {
     }
 
     private static void makeConnection(String configPath, String driverPath){
-        IConnection dbConn;
+        IConnection dbConn = null;
         String slashType = "\\";
         if (!System.getProperty("os.name").startsWith("Windows")){
             slashType = "/";
@@ -209,5 +202,6 @@ public class Main {
                 LogSaver.appendLog("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
                 System.exit(0);
         }
+        LogSaver.appendLog("Connection string: " + dbConn.getConnectionString());
     }
 }
