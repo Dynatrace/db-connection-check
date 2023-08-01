@@ -87,7 +87,7 @@ public class Main {
             connect(connectionCheck.getTimeout(), folderPath, connectionCheck.getProvider(), connectionCheck.getConnectionString(), connectionCheck.getProperties());
         }
         if (connectionMode == ConnectionMode.CONFIG){
-            makeConnection(commandLine.getOptionValue("c"), folderPath);
+            makeConnection(commandLine.getOptionValue("cp"), folderPath);
         }
     }
     private static void ping(String hostName, int timeout){
