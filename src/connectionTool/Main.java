@@ -42,7 +42,6 @@ public class Main {
     }
 
     private static void run(String[] args){
-        args = new String[]{"-m","2","-cp", "C:\\praca\\db-connection-check\\connectionTool\\resources\\mysql.properties"};
         LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
 
         ConnectionMode connectionMode;

@@ -11,7 +11,7 @@ The recommended way of using the tool is to copy the connectionTool directory to
 
 Windows
 ```
-C:\ProgramFiles\dynatrace\remotepluginmodule\agent\res\java\libs\
+C:\Program Files\dynatrace\remotepluginmodule\agent\res\java\libs\
 ```
 HanaDB and DB2 Windows
 ```
@@ -26,15 +26,16 @@ HanaDB and DB2 Linux
 \var\lib\dynatrace\remotepluginmodule\agent\res\userdata\libs\
 ```
 
-Otherwise the drivers must be placed on the local machine (where the tool is executed).
+Otherwise the drivers must be placed on the local machine (where the tool is executed) 
+and the location needs to be specified as -dp arguments
 
 # Testing connection
 
 Tool has two modes: 
 
-Details mode (1),<br />
-connection parameters: (-m) mode (-cs) connection string (-u) username (-p) password (-t) timeout (-dp) driver path [Optional].<br />
-Usage examples:
+1. Details mode,</br>
+    connection parameters: (-m) mode (-cs) connection string (-u) username (-p) password (-t) timeout (-dp) driver path [Optional].<br/><br/>
+    Usage examples:
 
 Linux examples:
 ```
@@ -47,8 +48,8 @@ run.bat -m 1 -cs  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
 run.bat -m 1 -cs  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp C:\Program Files\drivers
 ```
 
-Config file mode (2),<br />
-connection parameters: (-m) mode (-cp) config path (-dp) driver path [Optional].<br />
+2. Config file mode,<br />
+connection parameters: (-m) mode (-cp) config path (-dp) driver path [Optional].<br /></br>
 Connection properties configs are stored in 
 ```
  \connectionTool\resources\
@@ -58,8 +59,8 @@ Usage examples:
 
 Linux examples:
 ```
-./run.sh -m 2 -cp
-./run.sh -m 2 -cp  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp /usr/local/drivers
+./run.sh -m 2 -cp /usrs/connectionTool/resources/db2.properties
+./run.sh -m 2 -cp /usrs/connectionTool/resources/db2.properties -dp /usr/local/drivers
 ```
 Windows examples:
 ```
