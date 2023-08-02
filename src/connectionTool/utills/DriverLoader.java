@@ -12,12 +12,9 @@ import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class DriverLoader {
+import static connectionTool.constants.FolderConstant.*;
 
-    private static final String MAIN_DRIVER_PATH_WINDOWS = "C:\\Program Files\\dynatrace\\remotepluginmodule\\agent\\res\\java\\libs";
-    private static final String MAIN_DRIVER_PATH_LINUX = "\\var\\lib\\dynatrace\\remotepluginmodule\\agent\\res\\java\\libs\\";
-    private static final String OTHER_DRIVER_PATH_WINDOWS = "C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\res\\userdata\\libs\\";         //for DB2 and HANA
-    private static final String OTHER_DRIVER_PATH_LINUX = "\\var\\lib\\dynatrace\\remotepluginmodule\\agent\\res\\userdata\\libs\\";
+public class DriverLoader {
 
     public static Driver findDriver(String folderPath, Provider db) throws DriverNotFoundException {
         String path = getPath(folderPath, db);
@@ -43,7 +40,7 @@ public class DriverLoader {
                             } catch (ClassNotFoundException ignored) {
                             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                                      NoSuchMethodException e) {
-                                LogSaver.appendLog(e.getMessage());
+                                LogSaver.appendLog(e.toString());
                                 System.out.println("Couldn't load the driver");
                                 System.exit(0);
                             }

@@ -38,6 +38,7 @@ public class Main {
     }
 
     private static void run(String[] args){
+        args = new String[]{"config", "-cp" ,"C:\\praca\\db-connection-check\\connectionTool\\raz dwa\\mysql.properties", "-dp","C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\res\\userdata\\libs"};
         LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
         HelpArgument helpArgument = new HelpArgument();
         DetailsArgument detailsArgument = new DetailsArgument();
@@ -102,12 +103,12 @@ public class Main {
         try {
             isReachable = InetAddress.getByName(hostName).isReachable(timeout * 1000);
         } catch (final UnknownHostException e) {
-            LogSaver.appendLog(e.getMessage());
+            LogSaver.appendLog(e.toString());
             System.out.println("Host is unknown");
             System.exit(0);
         } catch (IOException e) {
             System.out.println("Couldn't ping host, check logs for details!");
-            LogSaver.appendLog(e.getMessage());
+            LogSaver.appendLog(e.toString());
             System.exit(0);
         }
         if (isReachable) {
@@ -128,7 +129,7 @@ public class Main {
             inputStream.close();
         } catch (IOException e) {
             System.out.println("Failed to load config files");
-            LogSaver.appendLog("Failed to load config files: " + e.getMessage());
+            LogSaver.appendLog("Failed to load config files: " + e);
             System.exit(0);
         }
         return props;
@@ -140,7 +141,7 @@ public class Main {
             driver = DriverLoader.findDriver(path, provider);
         } catch (DriverNotFoundException e) {
             System.out.println("Couldn't load the driver");
-            LogSaver.appendLog(e.getMessage());
+            LogSaver.appendLog(e.toString());
             System.exit(0);
         }
         Connection conn = null;
@@ -149,8 +150,8 @@ public class Main {
                     .setNetworkTimeout(Executors.newFixedThreadPool(1), timeout * 1000);
             conn = driver.connect(connectionString, connectionProps);
         } catch (Exception e) {
-            LogSaver.appendLog("Couldn't connect, to database: " + e.getMessage());
-            System.out.println("Couldn't connect, to database");
+            LogSaver.appendLog("Couldn't connect to database: " + e);
+            System.out.println("Couldn't connect to database");
             System.exit(0);
         }
         if (conn != null) {
@@ -159,7 +160,7 @@ public class Main {
             try {
                 conn.close();
             } catch (SQLException e) {
-                LogSaver.appendLog("Connection problems: " + e.getMessage());
+                LogSaver.appendLog("Connection problems: " + e);
                 System.out.println("Connection problems, check logs for details");
                 System.exit(0);
             }

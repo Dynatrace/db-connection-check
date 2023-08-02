@@ -1,6 +1,7 @@
 package connectionTool.connections;
 
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
 
 import java.util.Properties;
@@ -52,8 +53,9 @@ public class OracleConnection implements IConnection {
         properties.put("oracle.net.CONNECT_TIMEOUT", timeout);
         if (sslEnabled){
             properties.put("oracle.net.ssl_server_dn_match","true");
-            properties.put("javax.net.ssl.trustStorePassword", "sqlds_truststore");
+            properties.put("javax.net.ssl.trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
             properties.put("javax.net.ssl.trustStoreType", "PKCS12");
+            properties.put("javax.net.ssl.trustStore",SSLConstant.getSSLTrustStorePath());
         }
         return properties;
     }

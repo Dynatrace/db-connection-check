@@ -1,5 +1,6 @@
 package connectionTool.connections;
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
 
 import java.util.Properties;
@@ -51,6 +52,8 @@ public class PostgreSQLConnection implements IConnection {
             properties.put("ssl", "true");
             properties.put("sslmode", "verify-full");
             properties.put("sslfactory","org.postgresql.ssl.DefaultJavaSSLFactory");
+            properties.put("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
+            properties.put("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
         }
         return properties;
     }

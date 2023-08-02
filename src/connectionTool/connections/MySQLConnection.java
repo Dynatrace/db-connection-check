@@ -1,5 +1,6 @@
 package connectionTool.connections;
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
 
 import java.util.Properties;
@@ -44,7 +45,9 @@ public class MySQLConnection implements IConnection {
         properties.put("password", password);
         properties.put("connectTimeout", timeout * 1000);
         if (sslEnabled) {
-            properties.put("sslMode", "verify-full");
+            properties.put("sslMode", "VERIFY_IDENTITY");
+            properties.put("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
+            properties.put("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
         }
         return properties;
     }

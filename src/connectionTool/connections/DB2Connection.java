@@ -1,5 +1,6 @@
 package connectionTool.connections;
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
 import java.util.Properties;
 
@@ -44,6 +45,8 @@ public class DB2Connection implements IConnection {
         properties.setProperty("connection timeout", String.valueOf(timeout));
         if (sslEnabled) {
             properties.setProperty("sslConnection", "true");
+            properties.setProperty("sslTrustStoreLocation", SSLConstant.getSSLTrustStorePath());
+            properties.setProperty("sslTrustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
         }
         return properties;
     }

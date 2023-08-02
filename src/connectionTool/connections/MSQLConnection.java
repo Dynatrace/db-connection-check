@@ -1,6 +1,7 @@
 package connectionTool.connections;
 
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
 import java.util.Properties;
 
@@ -55,10 +56,11 @@ public class MSQLConnection implements IConnection {
 
         if (sslEnabled){
             properties.put("encrypt", "true");
+            properties.put("trustServerCertificate", "true");
             if (validateCertificates){
-                properties.put("trustServerCertificate", "true");
-            }else {
                 properties.put("trustServerCertificate", "false");
+                properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
+                properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
             }
         }
 

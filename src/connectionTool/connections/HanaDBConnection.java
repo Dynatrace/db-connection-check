@@ -1,6 +1,7 @@
 package connectionTool.connections;
 
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
 import java.util.Properties;
 
@@ -45,6 +46,8 @@ public class HanaDBConnection implements IConnection {
         if (sslEnabled) {
             properties.put("encrypt", "true");
             properties.put("validateCertificate", "true");
+            properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
+            properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
         }
         return properties;
     }

@@ -1,4 +1,5 @@
-package connectionTool.connections; /***************************************************
+package connectionTool.connections;
+/***************************************************
  * dynaTrace Diagnostics (c) dynaTrace software GmbH
  *
  * @file: connection_tool.connections.ConnectionCheck.java
@@ -10,6 +11,8 @@ import connectionTool.utills.LogSaver;
 
 import java.util.Properties;
 
+import static connectionTool.constants.ConnectionConstant.*;
+
 
 /**
  *
@@ -17,17 +20,6 @@ import java.util.Properties;
  */
 
 public class ConnectionCheck{
-
-	private static final String ORACLE_PREFIX = "jdbc:oracle:"; //$NON-NLS-1$
-	private static final String SQLSERVER_PREFIX = "jdbc:sqlserver://"; //$NON-NLS-1$
-	private static final String MYSQL_PREFIX = "jdbc:mysql";//$NON-NLS-1$
-	private static final String MYSQL_LOADBALANCER_PREFIX = "jdbc:mysql:loadbalance://";//$NON-NLS-1$
-	private static final String MYSQL_REPLICATION_PREFIX = "jdbc:mysql:replication://";//$NON-NLS-1$
-	private static final String MYSQL_SPY = "jdbc:mysql_spy://";//$NON-NLS-1$
-	private static final String HANA_DB_PREFIX = "jdbc:sap://";
-	private static final String DB2_PREFIX = "jdbc:db2://";
-	private static final String POSTGRESQL_PREFIX = "jdbc:postgresql://";
-	private static final String SNOWFLAKE_PREFIX = "jdbc:snowflake://";
 
 	private final String connectionString;
 	private final String user;
