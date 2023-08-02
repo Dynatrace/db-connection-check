@@ -2,8 +2,10 @@ package connectionTool;
 
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import connectionTool.cmd.ConfigArguments;
 import connectionTool.cmd.DetailsArgument;
+import connectionTool.cmd.HelpArgument;
 import connectionTool.connections.ConnectionCheck;
 import connectionTool.connections.DB2Connection;
 import connectionTool.connections.HanaDBConnection;
@@ -37,15 +39,27 @@ public class Main {
 
     private static void run(String[] args){
         LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
+        HelpArgument helpArgument = new HelpArgument();
         DetailsArgument detailsArgument = new DetailsArgument();
         ConfigArguments configArguments = new ConfigArguments();
         JCommander jc = JCommander.newBuilder()
+                .addObject(helpArgument)
                 .addCommand(detailsArgument)
                 .addCommand(configArguments)
                 .build();
-        jc.parse(args);
+        try {
+            jc.parse(args);
+        }catch (ParameterException e){
+            System.out.println(e.getMessage());
+            LogSaver.appendLog(e.toString());
+            System.exit(0);
+        }
         String parsedCmdStr = jc.getParsedCommand();
         ConnectionMode connectionMode = null;
+        if (helpArgument.isHelp()){
+            jc.usage();
+            System.exit(0);
+        }
         switch (parsedCmdStr) {
             case "details":
                 connectionMode = ConnectionMode.DETAILS;
@@ -65,7 +79,6 @@ public class Main {
                 jc.usage();
                 System.exit(0);
             }
-            System.out.println(detailsArgument.getDriverPath());
             ConnectionCheck connectionCheck = new ConnectionCheck(detailsArgument.getConnectionString(),
                     detailsArgument.getUsername(),
                     detailsArgument.getPassword(),

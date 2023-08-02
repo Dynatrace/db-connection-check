@@ -44,9 +44,7 @@ public class MySQLConnection implements IConnection {
         properties.put("password", password);
         properties.put("connectTimeout", timeout * 1000);
         if (sslEnabled) {
-            properties.put("sslMode", "trust");
-        }else {
-            properties.put("sslMode", "disable");
+            properties.put("sslMode", "verify-full");
         }
         return properties;
     }
