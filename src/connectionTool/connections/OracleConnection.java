@@ -38,11 +38,15 @@ public class OracleConnection implements IConnection {
 
     @Override
     public String getConnectionString(){
+        String protocol = "";
+        if (sslEnabled){
+            protocol = "tcps://";
+        }
         if (sid == null || sid.isEmpty()){
-            return PREFIX + host + ":" + port + "/" + serviceName;
+            return PREFIX + protocol + host + ":" + port + "/" + serviceName;
 
         }else {
-            return PREFIX + host + ":" + port + ":" + sid;
+            return PREFIX + protocol + host + ":" + port + ":" + sid;
         }
     }
     @Override
@@ -52,10 +56,11 @@ public class OracleConnection implements IConnection {
         properties.put ("password",password);
         properties.put("oracle.net.CONNECT_TIMEOUT", timeout);
         if (sslEnabled){
+
             properties.put("oracle.net.ssl_server_dn_match","true");
-            properties.put("javax.net.ssl.trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-            properties.put("javax.net.ssl.trustStoreType", "PKCS12");
-            properties.put("javax.net.ssl.trustStore",SSLConstant.getSSLTrustStorePath());
+            System.setProperty("javax.net.ssl.trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+            System.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+            System.setProperty("javax.net.ssl.trustStore",SSLConstant.getSSLTrustStorePath());
         }
         return properties;
     }

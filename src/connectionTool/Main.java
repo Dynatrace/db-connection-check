@@ -38,7 +38,6 @@ public class Main {
     }
 
     private static void run(String[] args){
-        args = new String[]{"config", "-cp" ,"C:\\praca\\db-connection-check\\connectionTool\\raz dwa\\mysql.properties", "-dp","C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\res\\userdata\\libs"};
         LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
         HelpArgument helpArgument = new HelpArgument();
         DetailsArgument detailsArgument = new DetailsArgument();

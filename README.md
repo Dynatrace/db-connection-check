@@ -85,10 +85,11 @@ run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -d
     &emsp;&emsp;&emsp;-h, --helpConnection [optional]<br/>
     &emsp;&emsp;&emsp;&emsp; information about available commands and options 
 
-Properties configs are stored in <br />
+Properties configs are stored in: <br />
 ```
  \connectionTool\resources\
 ```
+(Do rename .properties files)
 
 Usage:
 
