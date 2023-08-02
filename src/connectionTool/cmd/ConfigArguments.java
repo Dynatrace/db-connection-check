@@ -8,11 +8,12 @@ import com.beust.jcommander.Parameters;
 )
 public class ConfigArguments {
     @Parameter(names = {"-cp", "--config_path"},
-            description = "provide path where the config properties are"
+            description = "provide path to config file",
+            required = true
     )
     private String configPath;
     @Parameter(names = {"-dp", "--driver_path"},
-            description = "provide path where the driver is"
+            description = "provide path to the folder where the driver is"
     )
     private String driverPath;
 

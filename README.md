@@ -26,45 +26,80 @@ HanaDB and DB2 Linux
 \var\lib\dynatrace\remotepluginmodule\agent\res\userdata\libs\
 ```
 
-Otherwise the drivers must be placed on the local machine (where the tool is executed) 
+Otherwise, the drivers must be placed on the local machine (where the tool is executed) 
 and the location needs to be specified as -dp arguments
 
 # Testing connection
 
-Tool has two modes: 
+Tool has two modes, to see all available commands run command
+
+on Linux:
+```
+./run.sh -h
+./run.sh --help
+```
+on Windows:
+```
+run.bat -h
+run.bat --help
+```
+
 
 1. Details mode,</br>
-    connection parameters: (-m) mode (-cs) connection string (-u) username (-p) password (-t) timeout (-dp) driver path [Optional].<br/><br/>
-    Usage examples:
+    &emsp; Usage: details [options]<br />
+    &emsp;&emsp;Options:<br />
+    &emsp;&emsp;&emsp;-cs, --connection_string<br />
+    &emsp;&emsp;&emsp;&emsp;provide connection string, for example: jdbc:mysql://HOST/DATABASE<br />
+    &emsp;&emsp;&emsp;-p, --password<br />
+    &emsp;&emsp;&emsp;&emsp;password <br />
+    &emsp;&emsp;&emsp;-t, --timeout<br />
+    &emsp;&emsp;&emsp;&emsp;timeout<br />
+    &emsp;&emsp;&emsp;&emsp;Default: 0<br />
+    &emsp;&emsp;&emsp;-u, --username<br />
+    &emsp;&emsp;&emsp;&emsp; username<br />
+    &emsp;&emsp;&emsp;-dp, --driver_path [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;provide path to the folder with driver<br />
+    &emsp;&emsp;&emsp;-h, --help [optional]<br /> 
+    &emsp;&emsp;&emsp;&emsp; information about available commands and options
+
+Usage:
 
 Linux examples:
 ```
-./run.sh -m 1 -cs  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
-./run.sh -m 1 -cs  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp /usr/local/drivers
+./run.sh details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
+./run.sh details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp "/usr/local/drivers"
 ```
 Windows examples:
 ```
-run.bat -m 1 -cs  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
-run.bat -m 1 -cs  jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp C:\Program Files\drivers
+run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
+run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp "C:\Program Files\drivers"
 ```
-
+<br/>
 2. Config file mode,<br />
-connection parameters: (-m) mode (-cp) config path (-dp) driver path [Optional].<br /></br>
-Connection properties configs are stored in 
+    &emsp; Usage: details [options]<br />
+    &emsp;&emsp;Options:<br />
+    &emsp;&emsp;&emsp;-cp, --config_path<br />
+    &emsp;&emsp;&emsp;&emsp;provide path to the config file<br />
+    &emsp;&emsp;&emsp;-dp, --driver_path [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;provide path to the folder with driver<br />
+    &emsp;&emsp;&emsp;-h, --helpConnection [optional]<br/>
+    &emsp;&emsp;&emsp;&emsp; information about available commands and options 
+
+Properties configs are stored in <br />
 ```
  \connectionTool\resources\
 ```
 
-Usage examples:
+Usage:
 
 Linux examples:
 ```
-./run.sh -m 2 -cp /usrs/connectionTool/resources/db2.properties
-./run.sh -m 2 -cp /usrs/connectionTool/resources/db2.properties -dp /usr/local/drivers
+./run.sh config -cp "/usr/connectionTool/resources/db2.properties"
+./run.sh config -cp "/usr/connectionTool/resources/db2.properties" -dp "/usr/local/drivers"
 ```
 Windows examples:
 ```
-run.bat -m 2 -cp  C:\usrs\connectionTool\resources\db2.properties
-run.bat -m 2 -cp  C:\usrs\connectionTool\resources\mysql.properties -dp C:\Program Files\drivers
+run.bat config -cp "C:\usrs\connectionTool\resources\db2.properties"
+run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\Program Files\drivers"
 ```
 

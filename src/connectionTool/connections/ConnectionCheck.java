@@ -21,9 +21,9 @@ public class ConnectionCheck{
 	private static final String ORACLE_PREFIX = "jdbc:oracle:"; //$NON-NLS-1$
 	private static final String SQLSERVER_PREFIX = "jdbc:sqlserver://"; //$NON-NLS-1$
 	private static final String MYSQL_PREFIX = "jdbc:mysql";//$NON-NLS-1$
-    private static final String MYSQL_LOADBALANCER_PREFIX = "jdbc:mysql:loadbalance://";//$NON-NLS-1$
-    private static final String MYSQL_REPLICATION_PREFIX = "jdbc:mysql:replication://";//$NON-NLS-1$
-    private static final String MYSQL_SPY = "jdbc:mysql_spy://";//$NON-NLS-1$
+	private static final String MYSQL_LOADBALANCER_PREFIX = "jdbc:mysql:loadbalance://";//$NON-NLS-1$
+	private static final String MYSQL_REPLICATION_PREFIX = "jdbc:mysql:replication://";//$NON-NLS-1$
+	private static final String MYSQL_SPY = "jdbc:mysql_spy://";//$NON-NLS-1$
 	private static final String HANA_DB_PREFIX = "jdbc:sap://";
 	private static final String DB2_PREFIX = "jdbc:db2://";
 	private static final String POSTGRESQL_PREFIX = "jdbc:postgresql://";
@@ -113,8 +113,8 @@ public class ConnectionCheck{
 			}
 			return cutoffUrl;
 		} else if(isMySQL(connectionString)) {
-            return extractHostAddress(connectionString, MYSQL_PREFIX);
-        }
+			return extractHostAddress(connectionString, MYSQL_PREFIX);
+		}
 		else if (isHanaDB(connectionString)){
 			return extractHostAddress(connectionString, HANA_DB_PREFIX);
 		}
@@ -140,9 +140,9 @@ public class ConnectionCheck{
 		return connectionString != null && (connectionString.toLowerCase().startsWith(SQLSERVER_PREFIX));
 	}
 
-    private boolean isMySQL(final String connectionString) {
-        return connectionString != null && connectionString.toLowerCase().startsWith(MYSQL_PREFIX);
-    }
+	private boolean isMySQL(final String connectionString) {
+		return connectionString != null && connectionString.toLowerCase().startsWith(MYSQL_PREFIX);
+	}
 
 	private boolean isHanaDB(final String connectionString) {
 		return connectionString != null && connectionString.toLowerCase().startsWith(HANA_DB_PREFIX);
@@ -158,17 +158,17 @@ public class ConnectionCheck{
 	}
 
 
-    private String getCutoffUrl(String url) {
-        String cutoffUrl = url;
-        if (url.startsWith(MYSQL_LOADBALANCER_PREFIX)) {
-            cutoffUrl = url.substring(MYSQL_LOADBALANCER_PREFIX.length());
-        }
-        if (url.startsWith(MYSQL_REPLICATION_PREFIX)) {
-            cutoffUrl = url.substring(MYSQL_REPLICATION_PREFIX.length());
-        }
-        if (url.startsWith(MYSQL_SPY)) {
-            cutoffUrl = url.substring(MYSQL_SPY.length());
-        }
+	private String getCutoffUrl(String url) {
+		String cutoffUrl = url;
+		if (url.startsWith(MYSQL_LOADBALANCER_PREFIX)) {
+			cutoffUrl = url.substring(MYSQL_LOADBALANCER_PREFIX.length());
+		}
+		if (url.startsWith(MYSQL_REPLICATION_PREFIX)) {
+			cutoffUrl = url.substring(MYSQL_REPLICATION_PREFIX.length());
+		}
+		if (url.startsWith(MYSQL_SPY)) {
+			cutoffUrl = url.substring(MYSQL_SPY.length());
+		}
 		if (url.startsWith(ORACLE_PREFIX)) {
 			cutoffUrl = url.substring(ORACLE_PREFIX.length());
 		}
@@ -190,8 +190,8 @@ public class ConnectionCheck{
 		if (url.startsWith(SNOWFLAKE_PREFIX)) {
 			cutoffUrl = url.substring(SNOWFLAKE_PREFIX.length());
 		}
-        return cutoffUrl;
-    }
+		return cutoffUrl;
+	}
 
 
 
