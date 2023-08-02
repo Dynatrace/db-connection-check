@@ -32,7 +32,7 @@ public class DetailsArgument {
             description = "provide path where the driver is"
     )
     private String driverPath;
-    @Parameter(names = {"-h", "--help"}, help = true)
+    @Parameter(names = {"-h", "--help"}, help = true, description = "information about available commands and options")
     private boolean help;
 
     public String getConnectionString() {
