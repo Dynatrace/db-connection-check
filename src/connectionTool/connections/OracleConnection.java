@@ -80,6 +80,11 @@ public class OracleConnection implements IConnection {
         return port;
     }
 
+    @Override
+    public Provider getProvider() {
+        return Provider.ORACLE;
+    }
+
     private void verify(){
         if (!(serviceName == null || serviceName.isEmpty()) && !(sid == null || sid.isEmpty())){
             System.out.println(("Service name and sid can not be both assigned"));

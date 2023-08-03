@@ -14,7 +14,6 @@ public class HanaDBConnection implements IConnection {
     private final String password;
     private final boolean sslEnabled;
     private int timeout;
-
     public HanaDBConnection(Properties properties) {
         this.host = properties.getProperty("host");
         this.port = properties.getProperty("port");
@@ -65,5 +64,10 @@ public class HanaDBConnection implements IConnection {
     @Override
     public String getPort() {
         return port;
+    }
+
+    @Override
+    public Provider getProvider() {
+        return Provider.HANA_DB;
     }
 }

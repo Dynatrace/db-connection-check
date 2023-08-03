@@ -72,4 +72,9 @@ public class PostgreSQLConnection implements IConnection {
     public String getPort() {
         return port;
     }
+
+    @Override
+    public Provider getProvider() {
+        return Provider.POSTGRESQL;
+    }
 }

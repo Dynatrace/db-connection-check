@@ -15,7 +15,6 @@ public class DB2Connection implements IConnection {
     private final boolean sslEnabled;
     private int timeout;
 
-
     public DB2Connection(Properties properties) {
         this.host = properties.getProperty("host");
         this.port = properties.getProperty("port");
@@ -64,5 +63,10 @@ public class DB2Connection implements IConnection {
     @Override
     public String getPort() {
         return port;
+    }
+
+    @Override
+    public Provider getProvider() {
+        return Provider.DB2;
     }
 }

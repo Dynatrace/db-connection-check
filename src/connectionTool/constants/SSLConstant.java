@@ -1,10 +1,5 @@
 package connectionTool.constants;
 
-import connectionTool.connections.Provider;
-
-import static connectionTool.constants.FolderConstant.*;
-import static connectionTool.constants.FolderConstant.OTHER_DRIVER_PATH_LINUX;
-
 public class SSLConstant {
 
 

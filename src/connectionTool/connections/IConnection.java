@@ -9,4 +9,5 @@ public interface IConnection {
     String getHost();
     int getTimeout();
     String getPort();
+    Provider getProvider();
 }

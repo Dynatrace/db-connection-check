@@ -81,4 +81,9 @@ public class MSQLConnection implements IConnection {
     public String getPort() {
         return port;
     }
+
+    @Override
+    public Provider getProvider() {
+        return Provider.MICROSOFT;
+    }
 }

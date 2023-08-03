@@ -69,4 +69,9 @@ public class MySQLConnection implements IConnection {
         return port;
     }
 
+    @Override
+    public Provider getProvider() {
+        return Provider.MYSQL;
+    }
+
 }

@@ -177,38 +177,24 @@ public class Main {
         switch (propertyName){
             case "db2.properties":
                 dbConn = new DB2Connection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(), driverPath, Provider.DB2, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             case "hanadb.properties":
                 dbConn = new HanaDBConnection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(),driverPath, Provider.HANA_DB, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             case "msql.properties":
                 dbConn = new MSQLConnection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(),driverPath, Provider.MICROSOFT, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             case "mysql.properties":
                 dbConn = new MySQLConnection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(),driverPath, Provider.MYSQL, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             case "oracle.properties":
                 dbConn = new OracleConnection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(), driverPath, Provider.ORACLE, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             case "postgresql.properties":
                 dbConn = new PostgreSQLConnection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(),driverPath, Provider.POSTGRESQL, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             case "snowflake.properties":
                 dbConn = new SnowflakeConnection(getConfigProperties(configPath));
-                ping(dbConn.getHost(), dbConn.getTimeout());
-                connect(dbConn.getTimeout(),driverPath, Provider.SNOWFLAKE, dbConn.getConnectionString(), dbConn.getProperties());
                 break;
             default:
                 System.out.println("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
@@ -216,5 +202,7 @@ public class Main {
                 System.exit(0);
         }
         LogSaver.appendLog("Connection string: " + dbConn.getConnectionString());
+        ping(dbConn.getHost(), dbConn.getTimeout());
+        connect(dbConn.getTimeout(), driverPath, dbConn.getProvider(), dbConn.getConnectionString(), dbConn.getProperties());
     }
 }
