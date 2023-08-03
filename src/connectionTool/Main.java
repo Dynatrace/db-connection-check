@@ -47,6 +47,10 @@ public class Main {
                 .addCommand(detailsArgument)
                 .addCommand(configArguments)
                 .build();
+        if (args.length == 0){
+            jc.usage();
+            System.exit(0);
+        }
         try {
             jc.parse(args);
         }catch (ParameterException e){
@@ -73,7 +77,6 @@ public class Main {
                 System.err.println("Invalid command: " + parsedCmdStr);
                 System.exit(0);
         }
-
         if (connectionMode == ConnectionMode.DETAILS){
             if (detailsArgument.getHelp()){
                 jc.usage();
@@ -82,7 +85,9 @@ public class Main {
             ConnectionCheck connectionCheck = new ConnectionCheck(detailsArgument.getConnectionString(),
                     detailsArgument.getUsername(),
                     detailsArgument.getPassword(),
-                    detailsArgument.getTimeout());
+                    detailsArgument.getTimeout(),
+                    detailsArgument.isSsl(),
+                    detailsArgument.isTrustCertificates());
             ping(connectionCheck.getHost(), connectionCheck.getTimeout());
             connect(connectionCheck.getTimeout(), detailsArgument.getDriverPath(),
                     connectionCheck.getProvider(),

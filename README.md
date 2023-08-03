@@ -60,7 +60,12 @@ run.bat --help
     &emsp;&emsp;&emsp;-dp, --driver_path [optional]<br />
     &emsp;&emsp;&emsp;&emsp;provide path to the folder with driver<br />
     &emsp;&emsp;&emsp;-h, --help [optional]<br /> 
-    &emsp;&emsp;&emsp;&emsp; information about available commands and options
+    &emsp;&emsp;&emsp;&emsp; information about available commands and options<br />
+    &emsp;&emsp;&emsp;-s, --ssl [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;should connection be encrypted<br />
+    &emsp;&emsp;&emsp;-tc, --trust_certificates [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;should ssl trust server certificates [only for SQL Server]<br />
+
 
 Usage:
 

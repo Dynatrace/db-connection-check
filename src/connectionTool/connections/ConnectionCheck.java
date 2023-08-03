@@ -7,6 +7,7 @@ package connectionTool.connections;
  * @author: wiktor
  */
 
+import connectionTool.constants.SSLConstant;
 import connectionTool.utills.LogSaver;
 
 import java.util.Properties;
@@ -26,15 +27,22 @@ public class ConnectionCheck{
 	private final String password;
 	private final String host;
 	private final int timeout;
+	private final boolean ssl;
+	private final boolean trustCertificates;
+	private final Properties properties = new Properties();
 
-	public ConnectionCheck(String connectionString, String user, String password, int timeout) {
+	public ConnectionCheck(String connectionString, String user, String password, int timeout, boolean ssl, boolean trustCertificates) {
 		this.connectionString = connectionString;
 		this.user = user;
 		this.password = password;
 		this.timeout = timeout;
+		this.ssl = ssl;
+		this.trustCertificates = trustCertificates;
 
 		host = getHostFromJdbcConnectionString(connectionString);
-
+		if (ssl){
+			setSSLProperties(getProvider());
+		}
 		LogSaver.appendLog("JDBC String: " + connectionString +  " " +
 				"User: " + user + " " +
 				"Hostname: " + host);
@@ -49,10 +57,10 @@ public class ConnectionCheck{
 	}
 
 	public Properties getProperties(){
-		final Properties connectionProps = new Properties();
-		connectionProps.put("user", user);
-		connectionProps.put("password", password);
-		return connectionProps;
+
+		properties.put("user", user);
+		properties.put("password", password);
+		return properties;
 	}
 
 	public Provider getProvider(){
@@ -185,10 +193,6 @@ public class ConnectionCheck{
 		return cutoffUrl;
 	}
 
-
-
-
-
 	private Provider extractProvider(String connectionString) {
 		if (connectionString.startsWith(ORACLE_PREFIX)){
 			return Provider.ORACLE;
@@ -231,7 +235,52 @@ public class ConnectionCheck{
 		}
 
 		return hostname;
+	}
 
+	private void setSSLProperties(Provider provider){
+		switch (provider){
+			case DB2:{
+				properties.setProperty("sslConnection", "true");
+				properties.setProperty("sslTrustStoreLocation", SSLConstant.getSSLTrustStorePath());
+				properties.setProperty("sslTrustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+				break;
+			}
+			case HANA_DB:{
+				properties.put("encrypt", "true");
+				properties.put("validateCertificate", "true");
+				properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
+				properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+				break;
+			}
+			case MICROSOFT:{
+				properties.put("encrypt", "true");
+				properties.put("trustServerCertificate", "true");
+				if (trustCertificates){
+					properties.put("trustServerCertificate", "false");
+					properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
+					properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+				}
+				break;
+			}
+			case MYSQL:
+				System.setProperty("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
+				System.setProperty("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+				break;
+			case ORACLE:{
+				properties.put("oracle.net.ssl_server_dn_match","true");
+				System.setProperty("javax.net.ssl.trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+				System.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
+				System.setProperty("javax.net.ssl.trustStore",SSLConstant.getSSLTrustStorePath());
+				break;
+			}
+			case POSTGRESQL:{
+				properties.put("ssl", "true");
+				properties.put("sslmode", "verify-full");
+				properties.put("sslfactory","org.postgresql.ssl.DefaultJavaSSLFactory");
+				System.setProperty("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
+				System.setProperty("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
+			}
+		}
 	}
 
 

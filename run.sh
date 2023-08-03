@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp .libs;. connectionTool.Main %*
+java -cp "lib/:." connectionTool.Main $

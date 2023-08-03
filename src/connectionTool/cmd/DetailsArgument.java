@@ -12,6 +12,7 @@ public class DetailsArgument {
             required = true
     )
     private String connectionString;
+
     @Parameter(names = {"-u", "--username"},
             description = "username",
             required = true
@@ -32,9 +33,25 @@ public class DetailsArgument {
             description = "provide path where the driver is"
     )
     private String driverPath;
-    @Parameter(names = {"-h", "--help"}, help = true, description = "information about available commands and options")
+    @Parameter(names = {"-h", "--help"}, help = true,
+            description = "information about available commands and options")
     private boolean help;
 
+    @Parameter(names = {"-s", "--ssl"},
+            description = "should connection be encrypted")
+    private final boolean ssl = false;
+
+    @Parameter(names = {"-tc", "--trust_certificates"},
+            description = "should ssl trust server certificates [only for SQL Server]")
+    private final boolean trustCertificates = false;
+
+    public boolean isSsl(){
+        return ssl;
+    }
+
+    public boolean isTrustCertificates() {
+        return trustCertificates;
+    }
     public String getConnectionString() {
         return connectionString;
     }

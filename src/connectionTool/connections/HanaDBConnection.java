@@ -20,6 +20,7 @@ public class HanaDBConnection implements IConnection {
         this.sslEnabled = Boolean.parseBoolean(properties.getProperty("ssl"));
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
+        
         this.timeout = 0;
         try {
             this.timeout = Integer.parseInt(properties.getProperty("timeout"));

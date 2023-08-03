@@ -1,6 +1,7 @@
 package connectionTool.utills;
 
 import connectionTool.connections.Provider;
+import connectionTool.constants.DriverPathConstant;
 import connectionTool.exceptions.DriverNotFoundException;
 
 import java.io.File;
@@ -11,8 +12,6 @@ import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Objects;
-
-import static connectionTool.constants.FolderConstant.*;
 
 public class DriverLoader {
 
@@ -63,24 +62,14 @@ public class DriverLoader {
         }
     }
 
-    private static String checkOs(Provider db){
-        if (db != Provider.HANA_DB && db != Provider.DB2)
-            return System.getProperty("os.name").startsWith("Windows")
-                    ? MAIN_DRIVER_PATH_WINDOWS
-                    : MAIN_DRIVER_PATH_LINUX;
-        else return System.getProperty("os.name").startsWith("Windows")
-                ? OTHER_DRIVER_PATH_WINDOWS
-                : OTHER_DRIVER_PATH_LINUX;
-    }
-
     private static String getPath(String folderPath, Provider db){
-        String orignalPath;
+        String originalPath;
         if (folderPath == null){
-            orignalPath = checkOs(db);
+            originalPath = DriverPathConstant.provideDriverPath(db);
         }else {
-            orignalPath = folderPath;
+            originalPath = folderPath;
         }
-        return orignalPath;
+        return originalPath;
     }
     private static File getDriverFolder(String path){
         File file = new File(path);
