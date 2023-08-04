@@ -27,7 +27,6 @@ public class ConnectionCheck{
 	private final String password;
 	private final String host;
 	private final int timeout;
-	private final boolean ssl;
 	private final boolean trustCertificates;
 	private final Properties properties = new Properties();
 
@@ -36,7 +35,6 @@ public class ConnectionCheck{
 		this.user = user;
 		this.password = password;
 		this.timeout = timeout;
-		this.ssl = ssl;
 		this.trustCertificates = trustCertificates;
 
 		host = getHostFromJdbcConnectionString(connectionString);
