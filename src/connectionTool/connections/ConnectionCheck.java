@@ -278,6 +278,8 @@ public class ConnectionCheck{
 				System.setProperty("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
 				System.setProperty("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
 			}
+			case SNOWFLAKE:
+				System.out.println("Snowflake has SSL enabled by default");
 		}
 	}
 

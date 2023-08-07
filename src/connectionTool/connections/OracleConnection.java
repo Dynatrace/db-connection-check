@@ -38,16 +38,11 @@ public class OracleConnection implements IConnection {
 
     @Override
     public String getConnectionString(){
-        String protocol = "";
-        if (sslEnabled){
-            protocol = "tcps://";
-        }
-        if (sid == null || sid.isEmpty()){
-            return PREFIX + protocol + host + ":" + port + "/" + serviceName;
+        String protocol = sslEnabled ? "(PROTOCOL=tcps)" : "";
+        String conData = serviceName.isEmpty() ? "(SID=" + sid +")" : "(SERVICE_NAME=" + serviceName +")";
 
-        }else {
-            return PREFIX + protocol + host + ":" + port + ":" + sid;
-        }
+        return "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=" + protocol + "(HOST="+ host + ")(PORT=" + port +"))(CONNECT_DATA=" + conData + "))";
+
     }
     @Override
     public Properties getProperties(){
