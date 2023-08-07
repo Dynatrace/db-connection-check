@@ -39,11 +39,11 @@ public class DetailsArgument {
 
     @Parameter(names = {"-s", "--ssl"},
             description = "should connection be encrypted")
-    private final boolean ssl = false;
+    private boolean ssl = false;
 
     @Parameter(names = {"-tc", "--trust_certificates"},
             description = "should ssl trust server certificates [only for SQL Server]")
-    private final boolean trustCertificates = false;
+    private boolean trustCertificates = false;
 
     public boolean isSsl(){
         return ssl;
