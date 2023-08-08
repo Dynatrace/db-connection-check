@@ -41,7 +41,6 @@ public class DB2Connection implements IConnection {
         var properties = new Properties();
         properties.setProperty("user", username);
         properties.setProperty("password", password);
-        properties.setProperty("connection timeout", String.valueOf(timeout));
         if (sslEnabled) {
             properties.setProperty("sslConnection", "true");
             properties.setProperty("sslTrustStoreLocation", SSLConstant.getSSLTrustStorePath());

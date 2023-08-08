@@ -42,7 +42,6 @@ public class HanaDBConnection implements IConnection {
         var properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
-        properties.put("timeout", timeout);
         if (sslEnabled) {
             properties.put("encrypt", "true");
             properties.put("validateCertificate", "true");

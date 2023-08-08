@@ -49,7 +49,6 @@ public class OracleConnection implements IConnection {
         Properties properties = new Properties();
         properties.put ("user", username);
         properties.put ("password",password);
-        properties.put("oracle.net.CONNECT_TIMEOUT", timeout);
         if (sslEnabled){
             properties.put("oracle.net.ssl_server_dn_match","true");
             System.setProperty("javax.net.ssl.trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);

@@ -46,7 +46,6 @@ public class MySQLConnection implements IConnection {
         var properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
-        properties.put("connectTimeout", timeout * 1000);
         if (sslEnabled) {
             System.setProperty("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
             System.setProperty("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);

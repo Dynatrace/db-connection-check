@@ -47,7 +47,6 @@ public class PostgreSQLConnection implements IConnection {
         var properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
-        properties.put("loginTimeout", timeout);
         if (sslEnabled) {
             properties.put("ssl", "true");
             properties.put("sslmode", "verify-full");

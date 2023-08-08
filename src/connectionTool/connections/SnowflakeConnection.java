@@ -48,7 +48,6 @@ public class SnowflakeConnection implements IConnection {
         properties.put("schema", schema);
         properties.put("warehouse", warehouse);
         properties.put("proxyPort", port);
-        properties.put("loginTimeout", timeout);
         return properties;
     }
 

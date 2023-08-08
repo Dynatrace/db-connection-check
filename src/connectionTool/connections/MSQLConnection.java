@@ -52,8 +52,6 @@ public class MSQLConnection implements IConnection {
 
         properties.put("database", databaseName);
         properties.put("instanceName", instanceName);
-        properties.put("loginTimeout", String.valueOf(timeout));
-
         if (sslEnabled){
             properties.put("encrypt", "true");
             properties.put("trustServerCertificate", "true");
