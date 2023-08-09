@@ -109,3 +109,5 @@ run.bat config -cp "C:\usrs\connectionTool\resources\db2.properties"
 run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\Program Files\drivers"
 ```
 
+# SSL
+Everything should be here: <a href=https://www.dynatrace.com/support/help/extend-dynatrace/extensions20/data-sources/sql/oracle-monitoring>support</a>
