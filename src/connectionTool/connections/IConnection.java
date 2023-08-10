@@ -5,9 +5,8 @@ import java.util.Properties;
 public interface IConnection {
 
     String getConnectionString();
-    Properties getProperties();
+    Properties getConnectionProperties();
     String getHost();
-    int getTimeout();
-    String getPort();
-    Provider getProvider();
+    int getTimeoutInSeconds();
+    DatabaseProvider getProvider();
 }

@@ -4,26 +4,26 @@ This is a quick tool to verify database connectivity, mainly used for
 troubleshooting problems in customer environment.
 
 # Building
-We assume that Java JDK 11 is available in the system. To build the tool simply execute the build script: build.sh on Linux or build.bat on Windows.
+We require that Java JDK 11 is available in the system. To build the tool simply execute the build script: build.sh on Linux or build.bat on Windows.
 
 # Usage
-The recommended way of using the tool is to copy the connectionTool directory to the machine where ActiveGate is installed and where the database datasource is running because that reflects the production environment including network and firewall settings as well as it should have all necessary drivers installed in the native directories:
+The recommended way of using the tool is to copy the db-connection-check directory with subdirectories to the machine where ActiveGate is installed and where the database datasource is running because that reflects the production environment including network and firewall settings as well as it should have all necessary drivers installed in the native directories:
 
 Windows
 ```
-C:\Program Files\dynatrace\remotepluginmodule\agent\res\java\libs\
+C:\Program Files\dynatrace\remotepluginmodule\agent\res\java\libs
 ```
 HanaDB and DB2 Windows
 ```
-C:\ProgramData\dynatrace\remotepluginmodule\agent\res\userdata\libs\
+C:\ProgramData\dynatrace\remotepluginmodule\agent\conf\userdata\libs
 ```
 Linux
 ```
-\var\lib\dynatrace\remotepluginmodule\agent\res\java\libs\
+/var/lib/dynatrace/remotepluginmodule/agent/res/java/libs
 ```
 HanaDB and DB2 Linux
 ```
-\var\lib\dynatrace\remotepluginmodule\agent\res\userdata\libs\
+/var/lib/dynatrace/remotepluginmodule/agent/conf/userdata/libs
 ```
 
 Otherwise, the drivers must be placed on the local machine (where the tool is executed) 
@@ -94,7 +94,7 @@ Properties configs are stored in: <br />
 ```
  \connectionTool\resources\
 ```
-(Do rename .properties files)
+(Do not rename .properties files)
 
 Usage:
 
@@ -110,4 +110,5 @@ run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\P
 ```
 
 # SSL
-Everything should be here: <a href=https://www.dynatrace.com/support/help/extend-dynatrace/extensions20/data-sources/sql/oracle-monitoring>support</a>
+To configure SSL connection follow this instruction regarding installing server's certificates:
+https://www.dynatrace.com/support/help/shortlink/oraclesql-monitoring#ssl

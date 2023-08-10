@@ -14,7 +14,6 @@ import connectionTool.connections.MSQLConnection;
 import connectionTool.connections.MySQLConnection;
 import connectionTool.connections.OracleConnection;
 import connectionTool.connections.PostgreSQLConnection;
-import connectionTool.connections.Provider;
 import connectionTool.connections.SnowflakeConnection;
 import connectionTool.exceptions.DriverNotFoundException;
 import connectionTool.utills.ConnectionMode;
@@ -54,16 +53,46 @@ public class Main {
         try {
             jc.parse(args);
         }catch (ParameterException e){
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             LogSaver.appendLog(e.toString());
             System.exit(0);
         }
         String parsedCmdStr = jc.getParsedCommand();
-        ConnectionMode connectionMode = null;
         if (helpArgument.isHelp()){
             jc.usage();
             System.exit(0);
         }
+
+        ConnectionMode connectionMode = getConnectionMode(parsedCmdStr);
+
+        if (connectionMode == ConnectionMode.DETAILS){
+            if (detailsArgument.getHelp()){
+                jc.usage();
+                System.exit(0);
+            }
+            ConnectionCheck connectionCheck = new ConnectionCheck(detailsArgument.getConnectionString(),
+                    detailsArgument.getUsername(),
+                    detailsArgument.getPassword(),
+                    detailsArgument.getTimeout(),
+                    detailsArgument.isSsl(),
+                    detailsArgument.isTrustCertificates());
+            ping(connectionCheck.getHost(), connectionCheck.getTimeoutInSeconds());
+            connect(detailsArgument.getDriverPath(),connectionCheck);
+        }
+        else if (connectionMode == ConnectionMode.CONFIG){
+            if (configArguments.getHelp()){
+                jc.usage();
+                System.exit(0);
+            }
+            connect(configArguments.getConfigPath(), configArguments.getDriverPath());
+        }
+        else {
+            System.out.println("Connection mode not specified");
+        }
+    }
+
+    private static ConnectionMode getConnectionMode(String parsedCmdStr) {
+        ConnectionMode connectionMode = null;
         switch (parsedCmdStr) {
             case "details":
                 connectionMode = ConnectionMode.DETAILS;
@@ -77,31 +106,9 @@ public class Main {
                 System.err.println("Invalid command: " + parsedCmdStr);
                 System.exit(0);
         }
-        if (connectionMode == ConnectionMode.DETAILS){
-            if (detailsArgument.getHelp()){
-                jc.usage();
-                System.exit(0);
-            }
-            ConnectionCheck connectionCheck = new ConnectionCheck(detailsArgument.getConnectionString(),
-                    detailsArgument.getUsername(),
-                    detailsArgument.getPassword(),
-                    detailsArgument.getTimeout(),
-                    detailsArgument.isSsl(),
-                    detailsArgument.isTrustCertificates());
-            ping(connectionCheck.getHost(), connectionCheck.getTimeout());
-            connect(connectionCheck.getTimeout(), detailsArgument.getDriverPath(),
-                    connectionCheck.getProvider(),
-                    connectionCheck.getConnectionString(),
-                    connectionCheck.getProperties());
-        }
-        else {
-            if (configArguments.getHelp()){
-                jc.usage();
-                System.exit(0);
-            }
-            makeConnection(configArguments.getConfigPath(), configArguments.getDriverPath());
-        }
+        return connectionMode;
     }
+
     private static void ping(String hostName, int timeout){
         boolean isReachable = false;
         try {
@@ -139,10 +146,10 @@ public class Main {
         return props;
     }
 
-    private static void connect(int timeout, String path, Provider provider, String connectionString, Properties connectionProps){
+    private static void connect(String path, IConnection connection){
         Driver driver = null;
         try {
-            driver = DriverLoader.findDriver(path, provider);
+            driver = DriverLoader.findDriver(path, connection.getProvider());
         } catch (DriverNotFoundException e) {
             System.out.println("Couldn't load the driver");
             LogSaver.appendLog(e.toString());
@@ -150,8 +157,8 @@ public class Main {
         }
         Connection conn = null;
         try {
-            DriverManager.setLoginTimeout(timeout);
-            conn = driver.connect(connectionString, connectionProps);
+            DriverManager.setLoginTimeout(connection.getTimeoutInSeconds());
+            conn = driver.connect(connection.getConnectionString(), connection.getConnectionProperties());
         } catch (Exception e) {
             LogSaver.appendLog("Couldn't connect to database: " + e);
             System.out.println("Couldn't connect to database");
@@ -170,14 +177,22 @@ public class Main {
         }
     }
 
-    private static void makeConnection(String configPath, String driverPath){
-        IConnection dbConn = null;
+    private static void connect(String configPath, String driverPath){
+
         String slashType = "\\";
         if (!System.getProperty("os.name").startsWith("Windows")){
             slashType = "/";
         }
         int folderIndex = configPath.lastIndexOf(slashType);
         String propertyName = configPath.substring(folderIndex + 1);
+        IConnection dbConn = getConnectionType(configPath, propertyName);
+        LogSaver.appendLog("Connection string: " + dbConn.getConnectionString());
+        ping(dbConn.getHost(), dbConn.getTimeoutInSeconds());
+        connect(driverPath, dbConn);
+    }
+
+    private static IConnection getConnectionType(String configPath, String propertyName) {
+        IConnection dbConn = null;
         switch (propertyName){
             case "db2.properties":
                 dbConn = new DB2Connection(getConfigProperties(configPath));
@@ -205,8 +220,6 @@ public class Main {
                 LogSaver.appendLog("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
                 System.exit(0);
         }
-        LogSaver.appendLog("Connection string: " + dbConn.getConnectionString());
-        ping(dbConn.getHost(), dbConn.getTimeout());
-        connect(dbConn.getTimeout(), driverPath, dbConn.getProvider(), dbConn.getConnectionString(), dbConn.getProperties());
+        return dbConn;
     }
 }

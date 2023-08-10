@@ -1,4 +1,14 @@
-import connectionTool.connections.*;
+package connectionTool;
+
+import connectionTool.connections.DB2Connection;
+import connectionTool.connections.HanaDBConnection;
+import connectionTool.connections.IConnection;
+import connectionTool.connections.MSQLConnection;
+import connectionTool.connections.MySQLConnection;
+import connectionTool.connections.OracleConnection;
+import connectionTool.connections.DatabaseProvider;
+import connectionTool.connections.PostgreSQLConnection;
+import connectionTool.connections.SnowflakeConnection;
 import connectionTool.utills.DriverLoader;
 import connectionTool.exceptions.DriverNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -26,15 +36,15 @@ public class ConnectionStringCreatingTest {
     }
     @Test
     void testDriverLoader_shouldThrowNullPointerExceptionWhenInvalidPathGiven(){
-        String path = "C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\conf\\userdata\\libos";
+        String path = "C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\conf\\userdata\\libs";
 
-        assertThrows(NullPointerException.class, () -> DriverLoader.findDriver(path, Provider.DB2));
+        assertThrows(NullPointerException.class, () -> DriverLoader.findDriver(path, DatabaseProvider.DB2));
     }
     @Test
     void testDriverLoader_shouldThrowExceptionWhenDriverNotFound(){
         String path = "src/connectionTool/resources";
 
-        assertThrows(DriverNotFoundException.class, () -> DriverLoader.findDriver(path, Provider.DB2));
+        assertThrows(DriverNotFoundException.class, () -> DriverLoader.findDriver(path, DatabaseProvider.DB2));
     }
     @Test
     void testHanaDBConnection_shouldConnectionStringBeEqualsToGiven(){
@@ -80,7 +90,7 @@ public class ConnectionStringCreatingTest {
 
         conn = new OracleConnection(properties);
 
-        assertEquals("jdbc:oracle:thin:@123.456.789.0:1234/service", conn.getConnectionString());
+        assertEquals("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL = TCP)(HOST=123.456.789.0)(PORT=1234))(CONNECT_DATA=(SERVICE_NAME=service)))", conn.getConnectionString());
     }
     @Test
     void testPostgreSQLConnection_shouldConnectionStringBeEqualsToGiven(){

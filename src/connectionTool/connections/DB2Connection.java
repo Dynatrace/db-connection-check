@@ -15,16 +15,16 @@ public class DB2Connection implements IConnection {
     private final boolean sslEnabled;
     private int timeout;
 
-    public DB2Connection(Properties properties) {
-        this.host = properties.getProperty("host");
-        this.port = properties.getProperty("port");
-        this.databaseName = properties.getProperty("db_name");
-        this.sslEnabled = Boolean.parseBoolean(properties.getProperty("ssl"));
-        this.username = properties.getProperty("username");
-        this.password = properties.getProperty("password");
+    public DB2Connection(Properties configproperties) {
+        this.host = configproperties.getProperty("host");
+        this.port = configproperties.getProperty("port");
+        this.databaseName = configproperties.getProperty("db_name");
+        this.sslEnabled = Boolean.parseBoolean(configproperties.getProperty("ssl"));
+        this.username = configproperties.getProperty("username");
+        this.password = configproperties.getProperty("password");
         this.timeout = 0;
         try {
-            this.timeout = Integer.parseInt(properties.getProperty("timeout"));
+            this.timeout = Integer.parseInt(configproperties.getProperty("timeout"));
         }catch (NumberFormatException e){
             System.out.println("Add timeout to configuration");
             System.exit(0);
@@ -37,7 +37,7 @@ public class DB2Connection implements IConnection {
         return DB2_PREFIX+host + ":" + port +"/" + databaseName;
     }
     @Override
-    public Properties getProperties(){
+    public Properties getConnectionProperties(){
         var properties = new Properties();
         properties.setProperty("user", username);
         properties.setProperty("password", password);
@@ -55,17 +55,12 @@ public class DB2Connection implements IConnection {
     }
 
     @Override
-    public int getTimeout() {
+    public int getTimeoutInSeconds() {
         return timeout;
     }
 
     @Override
-    public String getPort() {
-        return port;
-    }
-
-    @Override
-    public Provider getProvider() {
-        return Provider.DB2;
+    public DatabaseProvider getProvider() {
+        return DatabaseProvider.DB2;
     }
 }

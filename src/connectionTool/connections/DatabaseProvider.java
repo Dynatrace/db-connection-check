@@ -1,6 +1,6 @@
 package connectionTool.connections;
 
-public enum Provider {
+public enum DatabaseProvider {
     ORACLE,
     MYSQL,
     MICROSOFT,

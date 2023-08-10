@@ -1,7 +1,7 @@
 package connectionTool.utills;
 
-import connectionTool.connections.Provider;
-import connectionTool.constants.DriverPathConstant;
+import connectionTool.connections.DatabaseProvider;
+import connectionTool.constants.DriverPathProvider;
 import connectionTool.exceptions.DriverNotFoundException;
 
 import java.io.File;
@@ -12,44 +12,24 @@ import java.net.URLClassLoader;
 import java.sql.Driver;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class DriverLoader {
 
-    public static Driver findDriver(String folderPath, Provider db) throws DriverNotFoundException {
+    private DriverLoader(){
+
+    }
+
+    public static Driver findDriver(String folderPath, DatabaseProvider db) throws DriverNotFoundException {
         String path = getPath(folderPath, db);
         File driverFolder = getDriverFolder(path);
         return Arrays.stream(Objects.requireNonNull(driverFolder.listFiles()))
-                .map(fl -> {
-                            URL url = null;
-                            try {
-                                url = fl.toURI().toURL();
-                            } catch (MalformedURLException e) {
-                                System.out.println("Wrong driver's path");
-                                System.exit(0);
-                            }
-                            URL[] urls = new URL[]{url};
-
-                            ClassLoader cl = new URLClassLoader(urls);
-                            try {
-                                Driver driver = (Driver)Class.forName(getDriverClassName(db), true, cl).getConstructor().newInstance();
-                                LogSaver.appendLog("Driver found: " + db.name() + " " +
-                                        "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() + " " +
-                                        "driver path: " + fl.getAbsolutePath());
-                                return driver;
-                            } catch (ClassNotFoundException ignored) {
-                            } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                                     NoSuchMethodException e) {
-                                LogSaver.appendLog(e.toString());
-                                System.out.println("Couldn't load the driver");
-                                System.exit(0);
-                            }
-                    return null;
-                        }
-                ).filter(Objects::nonNull)
+                .map(mapFileToDriver(db))
+                .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(() -> new DriverNotFoundException("Couldn't find the driver in: " + path));
     }
-    private static String getDriverClassName(Provider provider){
+    private static String getDriverClassName(DatabaseProvider provider){
         switch (provider){
             case MYSQL: return "org.mariadb.jdbc.Driver";
             case MICROSOFT: return "com.microsoft.sqlserver.jdbc.SQLServerDriver";
@@ -62,10 +42,10 @@ public class DriverLoader {
         }
     }
 
-    private static String getPath(String folderPath, Provider db){
+    private static String getPath(String folderPath, DatabaseProvider db){
         String originalPath;
         if (folderPath == null){
-            originalPath = DriverPathConstant.provideDriverPath(db);
+            originalPath = DriverPathProvider.provideDriverPath(db);
         }else {
             originalPath = folderPath;
         }
@@ -90,5 +70,34 @@ public class DriverLoader {
         LogSaver.appendLog(message);
         System.out.println(message);
         System.exit(0);
+    }
+
+    private static Function<File, Driver> mapFileToDriver(DatabaseProvider db){
+        return file -> {
+            URL url = null;
+            try {
+                url = file.toURI().toURL();
+            } catch (MalformedURLException e) {
+                System.out.println("Wrong driver's path");
+                System.exit(0);
+            }
+            URL[] urls = new URL[]{url};
+            LogSaver.appendLog("HERE I AM: " + urls.toString());
+            ClassLoader cl = new URLClassLoader(urls);
+            try {
+                Driver driver = (Driver)Class.forName(getDriverClassName(db), true, cl).getConstructor().newInstance();
+                LogSaver.appendLog("Driver found: " + db.name() + " " +
+                        "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() +
+                        "driver path: " + file.getAbsolutePath());
+                return driver;
+            } catch (ClassNotFoundException ignored) {
+            } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
+                     NoSuchMethodException e) {
+                LogSaver.appendLog(e.toString());
+                System.out.println("Couldn't load the driver");
+                System.exit(0);
+            }
+            return null;
+        };
     }
 }

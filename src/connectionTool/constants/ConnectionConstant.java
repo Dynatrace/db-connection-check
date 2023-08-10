@@ -12,4 +12,7 @@ public class ConnectionConstant {
     public static final String DB2_PREFIX = "jdbc:db2://";
     public static final String POSTGRESQL_PREFIX = "jdbc:postgresql://";
     public static final String SNOWFLAKE_PREFIX = "jdbc:snowflake://";
+
+    private ConnectionConstant() {
+    }
 }

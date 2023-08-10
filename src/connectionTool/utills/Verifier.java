@@ -6,6 +6,9 @@ import java.util.List;
 
 public class Verifier {
 
+
+    private Verifier(){}
+
     private static <T> void verify(List<String> requiredArguments, T t, String... args) throws NoSuchFieldException, IllegalAccessException {
         for (String arg : args) {
             Field field  = t.getClass().getDeclaredField(arg);

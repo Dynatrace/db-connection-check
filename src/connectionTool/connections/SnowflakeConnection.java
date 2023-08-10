@@ -40,7 +40,7 @@ public class SnowflakeConnection implements IConnection {
     }
 
     @Override
-    public Properties getProperties() {
+    public Properties getConnectionProperties() {
         Properties properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
@@ -57,18 +57,13 @@ public class SnowflakeConnection implements IConnection {
     }
 
     @Override
-    public int getTimeout() {
+    public int getTimeoutInSeconds() {
         return timeout;
     }
 
     @Override
-    public String getPort() {
-        return port;
-    }
-
-    @Override
-    public Provider getProvider() {
-        return Provider.SNOWFLAKE;
+    public DatabaseProvider getProvider() {
+        return DatabaseProvider.SNOWFLAKE;
     }
 
 }

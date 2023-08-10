@@ -41,11 +41,11 @@ public class OracleConnection implements IConnection {
         String protocol = sslEnabled ? "(PROTOCOL=tcps)" : "(PROTOCOL = TCP)";
         String conData = serviceName.isEmpty() ? "(SID=" + sid +")" : "(SERVICE_NAME=" + serviceName +")";
 
-        return "jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=" + protocol + "(HOST="+ host + ")(PORT=" + port +"))(CONNECT_DATA=" + conData + "))";
+        return PREFIX + "(DESCRIPTION=(ADDRESS=" + protocol + "(HOST="+ host + ")(PORT=" + port +"))(CONNECT_DATA=" + conData + "))";
 
     }
     @Override
-    public Properties getProperties(){
+    public Properties getConnectionProperties(){
         Properties properties = new Properties();
         properties.put ("user", username);
         properties.put ("password",password);
@@ -64,18 +64,13 @@ public class OracleConnection implements IConnection {
     }
 
     @Override
-    public int getTimeout() {
+    public int getTimeoutInSeconds() {
         return timeout;
     }
 
     @Override
-    public String getPort() {
-        return port;
-    }
-
-    @Override
-    public Provider getProvider() {
-        return Provider.ORACLE;
+    public DatabaseProvider getProvider() {
+        return DatabaseProvider.ORACLE;
     }
 
     private void verify(){

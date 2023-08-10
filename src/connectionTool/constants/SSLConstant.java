@@ -7,6 +7,7 @@ public class SSLConstant {
     private static final String SSL_TRUSTSTORE_PATH_LINUX = "/var/lib/dynatrace/remotepluginmodule/agent/conf/userdata/sqlds_truststore";
     public static final String SSL_TRUSTSTORE_PASSWORD = "sqlds_truststore";
 
+    private SSLConstant(){}
     public static String getSSLTrustStorePath(){
 
         return System.getProperty("os.name").startsWith("Windows")

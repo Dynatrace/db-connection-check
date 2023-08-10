@@ -43,7 +43,7 @@ public class PostgreSQLConnection implements IConnection {
         }
     }
     @Override
-    public Properties getProperties(){
+    public Properties getConnectionProperties(){
         var properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
@@ -63,17 +63,13 @@ public class PostgreSQLConnection implements IConnection {
     }
 
     @Override
-    public int getTimeout() {
+    public int getTimeoutInSeconds() {
         return timeout;
     }
 
-    @Override
-    public String getPort() {
-        return port;
-    }
 
     @Override
-    public Provider getProvider() {
-        return Provider.POSTGRESQL;
+    public DatabaseProvider getProvider() {
+        return DatabaseProvider.POSTGRESQL;
     }
 }

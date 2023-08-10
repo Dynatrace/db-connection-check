@@ -11,20 +11,19 @@ public class LogSaver {
 
 	private static final String LOG_FILE_DIRECTORY = "log.txt";
 	private static final String DATE_FORMAT = "dd-MM-yyyy HH:mm:ss";
+
+	private LogSaver(){}
 	public static void appendLog(String text)
 	{
 		File logFile = new File(LOG_FILE_DIRECTORY);
 		if (!logFile.exists())
 		{
-			try
-			{
+			try {
 				logFile.createNewFile();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
 			}
-			catch (IOException e)
-			{
-				System.out.println("Couldn't create the log file");
-				System.exit(0);
-			}
+
 		}
 		try
 		{
@@ -46,4 +45,5 @@ public class LogSaver {
 			System.exit(0);
 		}
 	}
+
 }
