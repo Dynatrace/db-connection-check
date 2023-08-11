@@ -95,7 +95,7 @@ public class OracleEndpoint implements IConnection {
 
 
     private String createConnectionString(){
-        String protocol = sslEnabled ? "(PROTOCOL=tcps)" : "(PROTOCOL = TCP)";
+        String protocol = sslEnabled ? "(PROTOCOL=tcps)" : "(PROTOCOL=TCP)";
         String conData = serviceName.isEmpty() ? "(SID=" + sid +")" : "(SERVICE_NAME=" + serviceName +")";
         return PREFIX + "(DESCRIPTION=(ADDRESS=" + protocol + "(HOST="+ host + ")(PORT=" + port +"))(CONNECT_DATA=" + conData + "))";
     }

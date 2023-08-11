@@ -57,6 +57,9 @@ public class DetailsProvider {
 
 	private  String extractHostFromJdbcConnectionString(final String connectionString) {
 		if (isOracle(connectionString)) {
+			if (connectionString.contains("@(DESCRIPTION=")){
+				return extractFromNETOracle(connectionString);
+			}
 			final int beginIndex = connectionString.indexOf("@") + 1;
 			String hostPortSid = connectionString.substring(beginIndex);
 			if (hostPortSid.startsWith("//")) {
@@ -136,6 +139,12 @@ public class DetailsProvider {
 		return connectionString != null && connectionString.toLowerCase().startsWith(SNOWFLAKE_PREFIX);
 	}
 
+	private String extractFromNETOracle(String connectionString){
+		String hostProperty = "(HOST=";
+		int hostBeginIndex = connectionString.indexOf(hostProperty);
+		int hostEndingIndex = connectionString.indexOf(")",hostBeginIndex);
+		return connectionString.substring(hostBeginIndex + hostProperty.length(),hostEndingIndex);
+	}
 
 	private String getCutoffUrl(String url) {
 		String cutoffUrl = url;
