@@ -1,24 +1,29 @@
-package connectionTool.connections;
+package connectionTool.endpoints;
 
 import connectionTool.constants.SSLConstant;
 import connectionTool.utills.Verifier;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-public class DB2Connection implements IConnection {
+public class DB2Endpoint implements IConnection {
 
     private static final String DB2_PREFIX = "jdbc:db2://";
     private final String host;
-    private final String port;
-    private final String databaseName;
+    private final String connectionString;
     private final String username;
     private final String password;
     private final boolean sslEnabled;
+    private String port;
+    private  String databaseName;
     private int timeout;
 
-    public DB2Connection(Properties configproperties) {
+    public DB2Endpoint(Properties configproperties) {
+        Verifier.verifyConfig(getRequiredConfigValuesList(), configproperties);
         this.host = configproperties.getProperty("host");
         this.port = configproperties.getProperty("port");
-        this.databaseName = configproperties.getProperty("db_name");
+        this.databaseName = configproperties.getProperty("databaseName");
         this.sslEnabled = Boolean.parseBoolean(configproperties.getProperty("ssl"));
         this.username = configproperties.getProperty("username");
         this.password = configproperties.getProperty("password");
@@ -29,12 +34,22 @@ public class DB2Connection implements IConnection {
             System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-        Verifier.verifyConfig(this, "host","port","databaseName");
+
+        connectionString = createConnectionString();
+    }
+
+    public DB2Endpoint(String connectionString, String username, String password, boolean sslEnabled, int timeout, String host) {
+        this.connectionString = connectionString;
+        this.username = username;
+        this.password = password;
+        this.sslEnabled = sslEnabled;
+        this.timeout = timeout;
+        this.host = host;
     }
 
     @Override
     public String getConnectionString(){
-        return DB2_PREFIX+host + ":" + port +"/" + databaseName;
+        return connectionString;
     }
     @Override
     public Properties getConnectionProperties(){
@@ -63,4 +78,16 @@ public class DB2Connection implements IConnection {
     public DatabaseProvider getProvider() {
         return DatabaseProvider.DB2;
     }
+
+    private List<String> getRequiredConfigValuesList(){
+        List<String> requiredArguments = new ArrayList<>();
+        requiredArguments.add("host");
+        requiredArguments.add("port");
+        requiredArguments.add("databaseName");
+        return requiredArguments;
+    }
+    private String createConnectionString(){
+        return DB2_PREFIX + host + ":" + port +"/" + databaseName;
+    }
+
 }

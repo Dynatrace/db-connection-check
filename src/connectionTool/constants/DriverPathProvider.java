@@ -1,6 +1,6 @@
 package connectionTool.constants;
 
-import connectionTool.connections.DatabaseProvider;
+import connectionTool.endpoints.DatabaseProvider;
 
 public class DriverPathProvider {
 

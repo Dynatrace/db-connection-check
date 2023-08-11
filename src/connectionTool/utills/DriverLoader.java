@@ -1,6 +1,6 @@
 package connectionTool.utills;
 
-import connectionTool.connections.DatabaseProvider;
+import connectionTool.endpoints.DatabaseProvider;
 import connectionTool.constants.DriverPathProvider;
 import connectionTool.exceptions.DriverNotFoundException;
 
@@ -67,8 +67,7 @@ public class DriverLoader {
     }
 
     private static void errorCall(String message){
-        LogSaver.appendLog(message);
-        System.out.println(message);
+        LogSaver.printAndSaveMessage(message);
         System.exit(0);
     }
 
@@ -82,19 +81,17 @@ public class DriverLoader {
                 System.exit(0);
             }
             URL[] urls = new URL[]{url};
-            LogSaver.appendLog("HERE I AM: " + urls.toString());
             ClassLoader cl = new URLClassLoader(urls);
             try {
                 Driver driver = (Driver)Class.forName(getDriverClassName(db), true, cl).getConstructor().newInstance();
                 LogSaver.appendLog("Driver found: " + db.name() + " " +
                         "version: " + driver.getMajorVersion() + "." + driver.getMinorVersion() +
-                        "driver path: " + file.getAbsolutePath());
+                        " driver path: " + file.getAbsolutePath());
                 return driver;
             } catch (ClassNotFoundException ignored) {
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                      NoSuchMethodException e) {
-                LogSaver.appendLog(e.toString());
-                System.out.println("Couldn't load the driver");
+                LogSaver.printAndSaveMessage("Couldn't load the driver", e.toString());
                 System.exit(0);
             }
             return null;

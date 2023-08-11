@@ -1,9 +1,6 @@
-package connectionTool.connections;
+package connectionTool.endpoints;
 
-import connectionTool.constants.SSLConstant;
 import connectionTool.utills.LogSaver;
-
-import java.util.Properties;
 
 import static connectionTool.constants.ConnectionConstant.DB2_PREFIX;
 import static connectionTool.constants.ConnectionConstant.HANA_DB_PREFIX;
@@ -17,56 +14,45 @@ import static connectionTool.constants.ConnectionConstant.MYSQL_REPLICATION_PREF
 import static connectionTool.constants.ConnectionConstant.MYSQL_SPY;
 
 
-public class ConnectionCheck implements IConnection{
+public class DetailsProvider {
 
 	private final String connectionString;
-	private final String host;
 	private final int timeout;
 	private final boolean trustCertificates;
-	private final Properties connectionProperties = new Properties();
+	private final DatabaseProvider provider;
+	private final String username;
+	private final String password;
+	private final boolean isSSL;
+	private final String host;
 
-	public ConnectionCheck(String connectionString, String user, String password, int timeout, boolean ssl, boolean trustCertificates) {
+	public DetailsProvider(String connectionString, String username, String password, int timeout, boolean ssl, boolean trustCertificates) {
 		this.connectionString = connectionString;
 		this.timeout = timeout;
 		this.trustCertificates = trustCertificates;
-
-		host = extractHostFromJdbcConnectionString(connectionString);
-		connectionProperties.put("user", user);
-		connectionProperties.put("password", password);
-		if (ssl){
-			setSSLProperties(getProvider());
+		this.provider = extractProvider(connectionString);
+		this.username = username;
+		this.password = password;
+		this.isSSL = ssl;
+		this.host = extractHostFromJdbcConnectionString(connectionString);
+	}
+	public IConnection createEndpoint(){
+		switch (provider){
+			case DB2:
+				return new DB2Endpoint(connectionString, username, password, isSSL, timeout, host);
+			case HANA_DB:
+				return new HanaDBEndpoint(connectionString, username, password, isSSL, timeout, host);
+			case MICROSOFT:
+				return new MSQLEndpoint(connectionString, username, password, isSSL, timeout, trustCertificates, host);
+			case ORACLE:
+				return new OracleEndpoint(connectionString, username, password, isSSL, timeout, host);
+			case POSTGRESQL:
+				return new PostgreSQLEndpoint(connectionString, username, password, isSSL, timeout, host);
+			case SNOWFLAKE:
+				return new SnowflakeEndpoint(connectionString, username, password, timeout, host);
+			case MYSQL:
+				return new MySQLEndpoint(connectionString, username, password, isSSL, timeout, host);
 		}
-		LogSaver.appendLog("JDBC String: " + connectionString +  " " +
-				"User: " + user + " " +
-				"Hostname: " + host);
-
-	}
-
-	@Override
-	public String getConnectionString() {
-		return connectionString;
-	}
-	@Override
-	public String getHost() {
-		return host;
-	}
-	@Override
-	public Properties getConnectionProperties(){
-		return connectionProperties;
-	}
-	@Override
-	public DatabaseProvider getProvider(){
-		DatabaseProvider provider = extractProvider(connectionString);
-		if (provider == null){
-			System.out.println("Couldn't resolve provider");
-			LogSaver.appendLog("Couldn't resolve provider");
-			System.exit(0);
-		}
-		return provider;
-	}
-	@Override
-	public int getTimeoutInSeconds(){
-		return timeout;
+		return null;
 	}
 
 	private  String extractHostFromJdbcConnectionString(final String connectionString) {
@@ -211,7 +197,12 @@ public class ConnectionCheck implements IConnection{
 		if (connectionString.startsWith(SNOWFLAKE_PREFIX)){
 			return DatabaseProvider.SNOWFLAKE;
 		}
-		else return null;
+		else {
+			System.out.println("Couldn't resolve provider");
+			LogSaver.appendLog("Couldn't resolve provider");
+			System.exit(0);
+			return null;
+		}
 	}
 	private String extractHostAddress(String connectionString, String prefix){
 		String url = connectionString.toLowerCase();
@@ -228,54 +219,6 @@ public class ConnectionCheck implements IConnection{
 		}
 
 		return hostname;
-	}
-
-	private void setSSLProperties(DatabaseProvider provider){
-		switch (provider){
-			case DB2:{
-				connectionProperties.setProperty("sslConnection", "true");
-				connectionProperties.setProperty("sslTrustStoreLocation", SSLConstant.getSSLTrustStorePath());
-				connectionProperties.setProperty("sslTrustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-				break;
-			}
-			case HANA_DB:{
-				connectionProperties.put("encrypt", "true");
-				connectionProperties.put("validateCertificate", "true");
-				connectionProperties.put("trustStore", SSLConstant.getSSLTrustStorePath());
-				connectionProperties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-				break;
-			}
-			case MICROSOFT:{
-				connectionProperties.put("encrypt", "true");
-				connectionProperties.put("trustServerCertificate", "true");
-				if (trustCertificates){
-					connectionProperties.put("trustServerCertificate", "false");
-					connectionProperties.put("trustStore", SSLConstant.getSSLTrustStorePath());
-					connectionProperties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-				}
-				break;
-			}
-			case MYSQL:
-				System.setProperty("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
-				System.setProperty("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-				break;
-			case ORACLE:{
-				connectionProperties.put("oracle.net.ssl_server_dn_match","true");
-				System.setProperty("javax.net.ssl.trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-				System.setProperty("javax.net.ssl.trustStoreType", "PKCS12");
-				System.setProperty("javax.net.ssl.trustStore",SSLConstant.getSSLTrustStorePath());
-				break;
-			}
-			case POSTGRESQL:{
-				connectionProperties.put("ssl", "true");
-				connectionProperties.put("sslmode", "verify-full");
-				connectionProperties.put("sslfactory","org.postgresql.ssl.DefaultJavaSSLFactory");
-				System.setProperty("javax.net.ssl.trustStore", SSLConstant.getSSLTrustStorePath());
-				System.setProperty("javax.net.ssl.trustStorePassword",SSLConstant.SSL_TRUSTSTORE_PASSWORD);
-			}
-			case SNOWFLAKE:
-				System.out.println("Snowflake has SSL enabled by default");
-		}
 	}
 
 

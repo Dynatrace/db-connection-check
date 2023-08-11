@@ -1,4 +1,4 @@
-package connectionTool.connections;
+package connectionTool.endpoints;
 
 public enum DatabaseProvider {
     ORACLE,

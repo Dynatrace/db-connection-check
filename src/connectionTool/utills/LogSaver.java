@@ -36,7 +36,6 @@ public class LogSaver {
 					.append(" ")
 					.append(text);
 			buf.newLine();
-			buf.newLine();
 			buf.close();
 		}
 		catch (IOException e)
@@ -46,4 +45,18 @@ public class LogSaver {
 		}
 	}
 
+	public static void printAndSaveMessage(String... messages){
+		if (messages.length > 2){
+			System.err.println("You can't use more than 2 arguments!");
+			System.exit(0);
+		}
+		if (messages.length == 2){
+			System.out.println(messages[0]);
+			LogSaver.appendLog(messages[1]);
+		}
+		if (messages.length == 1){
+			System.out.println(messages[0]);
+			LogSaver.appendLog(messages[0]);
+		}
+	}
 }

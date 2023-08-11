@@ -6,15 +6,15 @@ import com.beust.jcommander.ParameterException;
 import connectionTool.cmd.ConfigArguments;
 import connectionTool.cmd.DetailsArgument;
 import connectionTool.cmd.HelpArgument;
-import connectionTool.connections.ConnectionCheck;
-import connectionTool.connections.DB2Connection;
-import connectionTool.connections.HanaDBConnection;
-import connectionTool.connections.IConnection;
-import connectionTool.connections.MSQLConnection;
-import connectionTool.connections.MySQLConnection;
-import connectionTool.connections.OracleConnection;
-import connectionTool.connections.PostgreSQLConnection;
-import connectionTool.connections.SnowflakeConnection;
+import connectionTool.endpoints.DetailsProvider;
+import connectionTool.endpoints.DB2Endpoint;
+import connectionTool.endpoints.HanaDBEndpoint;
+import connectionTool.endpoints.IConnection;
+import connectionTool.endpoints.MSQLEndpoint;
+import connectionTool.endpoints.MySQLEndpoint;
+import connectionTool.endpoints.OracleEndpoint;
+import connectionTool.endpoints.PostgreSQLEndpoint;
+import connectionTool.endpoints.SnowflakeEndpoint;
 import connectionTool.exceptions.DriverNotFoundException;
 import connectionTool.utills.ConnectionMode;
 import connectionTool.utills.DriverLoader;
@@ -70,14 +70,15 @@ public class Main {
                 jc.usage();
                 System.exit(0);
             }
-            ConnectionCheck connectionCheck = new ConnectionCheck(detailsArgument.getConnectionString(),
+            DetailsProvider detailsProvider = new DetailsProvider(detailsArgument.getConnectionString(),
                     detailsArgument.getUsername(),
                     detailsArgument.getPassword(),
                     detailsArgument.getTimeout(),
                     detailsArgument.isSsl(),
                     detailsArgument.isTrustCertificates());
-            ping(connectionCheck.getHost(), connectionCheck.getTimeoutInSeconds());
-            connect(detailsArgument.getDriverPath(),connectionCheck);
+            IConnection iconn = detailsProvider.createEndpoint();
+            ping(iconn.getHost(), iconn.getTimeoutInSeconds());
+            connect(detailsArgument.getDriverPath(), iconn);
         }
         else if (connectionMode == ConnectionMode.CONFIG){
             if (configArguments.getHelp()){
@@ -114,21 +115,17 @@ public class Main {
         try {
             isReachable = InetAddress.getByName(hostName).isReachable(timeout * 1000);
         } catch (final UnknownHostException e) {
-            LogSaver.appendLog(e.toString());
-            System.out.println("Host is unknown");
+            LogSaver.printAndSaveMessage("Host is unknown", e.toString());
             System.exit(0);
         } catch (IOException e) {
-            System.out.println("Couldn't ping host, check logs for details!");
-            LogSaver.appendLog(e.toString());
+            LogSaver.printAndSaveMessage("Couldn't ping host, check logs for details!", e.toString());
             System.exit(0);
         }
         if (isReachable) {
-            System.out.println("Host is reachable");
-            LogSaver.appendLog("Host is reachable");
+            LogSaver.printAndSaveMessage("Host is reachable");
         }
         else  {
-            System.out.println("Host is unreachable");
-            LogSaver.appendLog("Host is unreachable");
+            LogSaver.printAndSaveMessage("Host is unreachable");
             System.exit(0);
         }
     }
@@ -139,8 +136,7 @@ public class Main {
             props.load(inputStream);
             inputStream.close();
         } catch (IOException e) {
-            System.out.println("Failed to load config files");
-            LogSaver.appendLog("Failed to load config files: " + e);
+            LogSaver.printAndSaveMessage("Failed to load config files", "Failed to load config files: " + e);
             System.exit(0);
         }
         return props;
@@ -151,8 +147,7 @@ public class Main {
         try {
             driver = DriverLoader.findDriver(path, connection.getProvider());
         } catch (DriverNotFoundException e) {
-            System.out.println("Couldn't load the driver");
-            LogSaver.appendLog(e.toString());
+            LogSaver.printAndSaveMessage("Couldn't load the driver", e.toString());
             System.exit(0);
         }
         Connection conn = null;
@@ -160,18 +155,15 @@ public class Main {
             DriverManager.setLoginTimeout(connection.getTimeoutInSeconds());
             conn = driver.connect(connection.getConnectionString(), connection.getConnectionProperties());
         } catch (Exception e) {
-            LogSaver.appendLog("Couldn't connect to database: " + e);
-            System.out.println("Couldn't connect to database");
+            LogSaver.printAndSaveMessage("Couldn't connect to database", "Couldn't connect to database: " + e);
             System.exit(0);
         }
         if (conn != null) {
-            System.out.println("Connection through JDBC successfull!");
-            LogSaver.appendLog("Connection through JDBC successfull!");
+            LogSaver.printAndSaveMessage("Connection through JDBC successfull!");
             try {
                 conn.close();
             } catch (SQLException e) {
-                LogSaver.appendLog("Connection problems: " + e);
-                System.out.println("Connection problems, check logs for details");
+                LogSaver.printAndSaveMessage("Connection problems, check logs for details", "Connection problems: " + e);
                 System.exit(0);
             }
         }
@@ -195,29 +187,28 @@ public class Main {
         IConnection dbConn = null;
         switch (propertyName){
             case "db2.properties":
-                dbConn = new DB2Connection(getConfigProperties(configPath));
+                dbConn = new DB2Endpoint(getConfigProperties(configPath));
                 break;
             case "hanadb.properties":
-                dbConn = new HanaDBConnection(getConfigProperties(configPath));
+                dbConn = new HanaDBEndpoint(getConfigProperties(configPath));
                 break;
             case "msql.properties":
-                dbConn = new MSQLConnection(getConfigProperties(configPath));
+                dbConn = new MSQLEndpoint(getConfigProperties(configPath));
                 break;
             case "mysql.properties":
-                dbConn = new MySQLConnection(getConfigProperties(configPath));
+                dbConn = new MySQLEndpoint(getConfigProperties(configPath));
                 break;
             case "oracle.properties":
-                dbConn = new OracleConnection(getConfigProperties(configPath));
+                dbConn = new OracleEndpoint(getConfigProperties(configPath));
                 break;
             case "postgresql.properties":
-                dbConn = new PostgreSQLConnection(getConfigProperties(configPath));
+                dbConn = new PostgreSQLEndpoint(getConfigProperties(configPath));
                 break;
             case "snowflake.properties":
-                dbConn = new SnowflakeConnection(getConfigProperties(configPath));
+                dbConn = new SnowflakeEndpoint(getConfigProperties(configPath));
                 break;
             default:
-                System.out.println("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
-                LogSaver.appendLog("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
+                LogSaver.printAndSaveMessage("Couldn't resolve config file: " + propertyName + " from path: " + configPath);
                 System.exit(0);
         }
         return dbConn;

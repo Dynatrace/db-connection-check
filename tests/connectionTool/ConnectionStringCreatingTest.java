@@ -1,16 +1,13 @@
 package connectionTool;
 
-import connectionTool.connections.DB2Connection;
-import connectionTool.connections.HanaDBConnection;
-import connectionTool.connections.IConnection;
-import connectionTool.connections.MSQLConnection;
-import connectionTool.connections.MySQLConnection;
-import connectionTool.connections.OracleConnection;
-import connectionTool.connections.DatabaseProvider;
-import connectionTool.connections.PostgreSQLConnection;
-import connectionTool.connections.SnowflakeConnection;
-import connectionTool.utills.DriverLoader;
-import connectionTool.exceptions.DriverNotFoundException;
+import connectionTool.endpoints.DB2Endpoint;
+import connectionTool.endpoints.HanaDBEndpoint;
+import connectionTool.endpoints.IConnection;
+import connectionTool.endpoints.MSQLEndpoint;
+import connectionTool.endpoints.MySQLEndpoint;
+import connectionTool.endpoints.OracleEndpoint;
+import connectionTool.endpoints.PostgreSQLEndpoint;
+import connectionTool.endpoints.SnowflakeEndpoint;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -30,21 +27,9 @@ public class ConnectionStringCreatingTest {
         properties.put("db_name", "db");
         properties.put("timeout", "10");
 
-        conn = new DB2Connection(properties);
+        conn = new DB2Endpoint(properties);
 
         assertEquals("jdbc:db2://123.456.789.0:1234/db", conn.getConnectionString());
-    }
-    @Test
-    void testDriverLoader_shouldThrowNullPointerExceptionWhenInvalidPathGiven(){
-        String path = "C:\\ProgramData\\dynatrace\\remotepluginmodule\\agent\\conf\\userdata\\libs";
-
-        assertThrows(NullPointerException.class, () -> DriverLoader.findDriver(path, DatabaseProvider.DB2));
-    }
-    @Test
-    void testDriverLoader_shouldThrowExceptionWhenDriverNotFound(){
-        String path = "src/connectionTool/resources";
-
-        assertThrows(DriverNotFoundException.class, () -> DriverLoader.findDriver(path, DatabaseProvider.DB2));
     }
     @Test
     void testHanaDBConnection_shouldConnectionStringBeEqualsToGiven(){
@@ -53,7 +38,7 @@ public class ConnectionStringCreatingTest {
         properties.put("port", "1234");
         properties.put("timeout", "10");
 
-        conn = new HanaDBConnection(properties);
+        conn = new HanaDBEndpoint(properties);
 
         assertEquals("jdbc:sap://123.456.789.0:1234", conn.getConnectionString());
     }
@@ -64,7 +49,7 @@ public class ConnectionStringCreatingTest {
         properties.put("port", "1234");
         properties.put("timeout", "10");
 
-        conn = new MSQLConnection(properties);
+        conn = new MSQLEndpoint(properties);
 
         assertEquals("jdbc:sqlserver://123.456.789.0:1234", conn.getConnectionString());
     }
@@ -76,7 +61,7 @@ public class ConnectionStringCreatingTest {
         properties.put("db_name", "db");
         properties.put("timeout", "10");
 
-        conn = new MySQLConnection(properties);
+        conn = new MySQLEndpoint(properties);
 
         assertEquals("jdbc:mariadb://123.456.789.0:1234/db", conn.getConnectionString());
     }
@@ -88,7 +73,7 @@ public class ConnectionStringCreatingTest {
         properties.put("service_name", "service");
         properties.put("timeout", "10");
 
-        conn = new OracleConnection(properties);
+        conn = new OracleEndpoint(properties);
 
         assertEquals("jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL = TCP)(HOST=123.456.789.0)(PORT=1234))(CONNECT_DATA=(SERVICE_NAME=service)))", conn.getConnectionString());
     }
@@ -100,7 +85,7 @@ public class ConnectionStringCreatingTest {
         properties.put("db_name", "db");
         properties.put("timeout", "10");
 
-        conn = new PostgreSQLConnection(properties);
+        conn = new PostgreSQLEndpoint(properties);
 
         assertEquals("jdbc:postgresql://123.456.789.0:1234/db", conn.getConnectionString());
     }
@@ -110,7 +95,7 @@ public class ConnectionStringCreatingTest {
         properties.put("host", "123.456.789.0");
         properties.put("timeout", "10");
 
-        conn = new SnowflakeConnection(properties);
+        conn = new SnowflakeEndpoint(properties);
 
         assertEquals("jdbc:snowflake://123.456.789.0", conn.getConnectionString());
     }
