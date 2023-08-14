@@ -19,8 +19,8 @@ public class Verifier {
     public static void verifyConfig(List<String> requiredArguments, Properties configProperties){
         List<String> missedArguments = new ArrayList<>();
         verify(requiredArguments, missedArguments, configProperties);
-        if (!requiredArguments.isEmpty()){
-            for (String field : requiredArguments) {
+        if (!missedArguments.isEmpty()){
+            for (String field : missedArguments) {
                 System.out.println("Required field is empty: " + field);
             }
             System.exit(0);

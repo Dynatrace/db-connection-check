@@ -58,10 +58,18 @@ public class SnowflakeEndpoint implements IConnection {
         Properties properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
-        properties.put("db", databaseName);
-        properties.put("schema", schema);
-        properties.put("warehouse", warehouse);
-        properties.put("proxyPort", port);
+        if (databaseName != null){
+            properties.put("db", databaseName);
+        }
+        if (schema != null){
+            properties.put("schema", schema);
+        }
+        if (warehouse != null){
+            properties.put("warehouse", warehouse);
+        }
+        if (port != null){
+            properties.put("proxyPort", port);
+        }
         return properties;
     }
 

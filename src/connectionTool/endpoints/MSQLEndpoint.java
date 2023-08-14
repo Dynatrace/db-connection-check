@@ -24,6 +24,7 @@ public class MSQLEndpoint implements IConnection {
 
     public MSQLEndpoint(Properties configproperties) {
         Verifier.verifyConfig(getRequiredConfigValuesList(), configproperties);
+
        this.host = configproperties.getProperty("host");
        this.port = configproperties.getProperty("port");
        this.instanceName = configproperties.getProperty("instanceName");
@@ -38,7 +39,6 @@ public class MSQLEndpoint implements IConnection {
             System.out.println("Add timeout to configuration");
             System.exit(0);
         }
-
         connectionString = createConnectionString();
     }
 
@@ -65,9 +65,12 @@ public class MSQLEndpoint implements IConnection {
 
         properties.put("user", username);
         properties.put("password", password);
-
-        properties.put("database", databaseName);
-        properties.put("instanceName", instanceName);
+        if(databaseName != null){
+            properties.put("database", databaseName);
+        }
+        if (instanceName != null){
+            properties.put("instanceName", instanceName);
+        }
         if (sslEnabled){
             properties.put("encrypt", "true");
             properties.put("trustServerCertificate", "true");
@@ -76,6 +79,8 @@ public class MSQLEndpoint implements IConnection {
                 properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
                 properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
             }
+        }else {
+            properties.put("encrypt","false");
         }
 
         return properties;

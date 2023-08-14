@@ -154,7 +154,7 @@ public class Main {
         try {
             DriverManager.setLoginTimeout(connection.getTimeoutInSeconds());
             conn = driver.connect(connection.getConnectionString(), connection.getConnectionProperties());
-        } catch (Exception e) {
+        } catch (SQLException e) {
             LogSaver.printAndSaveMessage("Couldn't connect to database", "Couldn't connect to database: " + e);
             System.exit(0);
         }

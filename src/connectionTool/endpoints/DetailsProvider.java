@@ -12,6 +12,7 @@ import static connectionTool.constants.ConnectionConstant.SQLSERVER_PREFIX;
 import static connectionTool.constants.ConnectionConstant.MYSQL_LOADBALANCER_PREFIX;
 import static connectionTool.constants.ConnectionConstant.MYSQL_REPLICATION_PREFIX;
 import static connectionTool.constants.ConnectionConstant.MYSQL_SPY;
+import static connectionTool.constants.ConnectionConstant.MYSQL_MARIA_PREFIX;
 
 
 public class DetailsProvider {
@@ -95,7 +96,17 @@ public class DetailsProvider {
 			}
 			return cutoffUrl;
 		} else if(isMySQL(connectionString)) {
-			return extractHostAddress(connectionString, MYSQL_PREFIX);
+			if (connectionString.startsWith(MYSQL_LOADBALANCER_PREFIX)){
+				return extractHostAddress(connectionString, MYSQL_LOADBALANCER_PREFIX);
+			}else if (connectionString.startsWith(MYSQL_PREFIX)){
+				return extractHostAddress(connectionString, MYSQL_PREFIX);
+			}else if (connectionString.startsWith(MYSQL_REPLICATION_PREFIX)){
+				return extractHostAddress(connectionString, MYSQL_REPLICATION_PREFIX);
+			}else if (connectionString.startsWith(MYSQL_MARIA_PREFIX)){
+				return extractHostAddress(connectionString, MYSQL_MARIA_PREFIX);
+			}else {
+				return extractHostAddress(connectionString, MYSQL_SPY);
+			}
 		}
 		else if (isHanaDB(connectionString)){
 			return extractHostAddress(connectionString, HANA_DB_PREFIX);
@@ -123,7 +134,11 @@ public class DetailsProvider {
 	}
 
 	private boolean isMySQL(final String connectionString) {
-		return connectionString != null && connectionString.toLowerCase().startsWith(MYSQL_PREFIX);
+		return connectionString != null && (connectionString.toLowerCase().startsWith(MYSQL_PREFIX)
+				|| connectionString.toLowerCase().startsWith(MYSQL_MARIA_PREFIX)
+				|| connectionString.toLowerCase().startsWith(MYSQL_LOADBALANCER_PREFIX)
+				|| connectionString.toLowerCase().startsWith(MYSQL_SPY)
+				|| connectionString.toLowerCase().startsWith(MYSQL_REPLICATION_PREFIX));
 	}
 
 	private boolean isHanaDB(final String connectionString) {
@@ -166,6 +181,9 @@ public class DetailsProvider {
 		if (url.startsWith(MYSQL_PREFIX)) {
 			cutoffUrl = url.substring(MYSQL_PREFIX.length());
 		}
+		if (url.startsWith(MYSQL_MARIA_PREFIX)) {
+			cutoffUrl = url.substring(MYSQL_MARIA_PREFIX.length());
+		}
 		if (url.startsWith(HANA_DB_PREFIX)) {
 			cutoffUrl = url.substring(HANA_DB_PREFIX.length());
 		}
@@ -191,7 +209,8 @@ public class DetailsProvider {
 		if (connectionString.startsWith(MYSQL_PREFIX) ||
 				connectionString.startsWith(MYSQL_LOADBALANCER_PREFIX) ||
 				connectionString.startsWith(MYSQL_REPLICATION_PREFIX) ||
-				connectionString.startsWith(MYSQL_SPY)){
+				connectionString.startsWith(MYSQL_SPY) ||
+				connectionString.startsWith(MYSQL_MARIA_PREFIX)){
 			return DatabaseProvider.MYSQL;
 		}
 		if (connectionString.startsWith(HANA_DB_PREFIX)){
