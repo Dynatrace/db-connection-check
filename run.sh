@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp "lib/jcommander-1.82.jar" connectionTool.Main $*
+java -cp "lib/*:." connectionTool.Main $*
