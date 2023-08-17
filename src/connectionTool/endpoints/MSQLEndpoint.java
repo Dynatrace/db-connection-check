@@ -74,7 +74,7 @@ public class MSQLEndpoint implements IConnection {
         if (sslEnabled){
             properties.put("encrypt", "true");
             properties.put("trustServerCertificate", "true");
-            if (validateCertificates){
+            if (!validateCertificates){
                 properties.put("trustServerCertificate", "false");
                 properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
                 properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
