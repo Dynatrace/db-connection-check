@@ -18,6 +18,7 @@ public class HanaDBEndpoint implements IConnection {
     private final boolean sslEnabled;
     private int timeout;
     private final String connectionString;
+    private String databaseName;
 
     public HanaDBEndpoint(Properties configproperties) {
         Verifier.verifyConfig(getRequiredConfigValuesList(), configproperties);
@@ -26,6 +27,7 @@ public class HanaDBEndpoint implements IConnection {
         this.sslEnabled = Boolean.parseBoolean(configproperties.getProperty("ssl"));
         this.username = configproperties.getProperty("username");
         this.password = configproperties.getProperty("password");
+        this.databaseName = configproperties.getProperty("databaseName");
         this.timeout = 0;
         try {
             this.timeout = Integer.parseInt(configproperties.getProperty("timeout"));
@@ -58,6 +60,7 @@ public class HanaDBEndpoint implements IConnection {
         properties.put("password", password);
         if (sslEnabled) {
             properties.put("encrypt", "true");
+            properties.put("databaseName", databaseName);
             properties.put("validateCertificate", "true");
             properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
             properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);

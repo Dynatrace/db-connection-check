@@ -16,14 +16,11 @@ public class LogSaver {
 	public static void appendLog(String text)
 	{
 		File logFile = new File(LOG_FILE_DIRECTORY);
-		if (!logFile.exists())
-		{
-			try {
-				logFile.createNewFile();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-
+		try {
+			logFile.createNewFile();
+		} catch (IOException e) {
+			System.err.println("Couldn't create log.txt file");
+			throw new RuntimeException(e);
 		}
 		try
 		{

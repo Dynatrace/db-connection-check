@@ -33,12 +33,20 @@ and the location needs to be specified as -dp arguments
 
 Tool has two modes, to see all available commands run command
 
-on Linux:
+Linux:
 ```
 ./run.sh -h
 ./run.sh --help
 ```
-on Windows:
+
+*If missing execution privileges error occurs, enter this command first:
+```
+chmod a+x
+```
+<br>
+<br>
+
+Windows:
 ```
 run.bat -h
 run.bat --help

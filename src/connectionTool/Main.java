@@ -76,9 +76,9 @@ public class Main {
                     detailsArgument.getTimeout(),
                     detailsArgument.isSsl(),
                     detailsArgument.isTrustCertificates());
-            IConnection iconn = detailsProvider.createEndpoint();
-            ping(iconn.getHost(), iconn.getTimeoutInSeconds());
-            connect(detailsArgument.getDriverPath(), iconn);
+            IConnection iConn = detailsProvider.createEndpoint();
+            ping(iConn.getHost(), iConn.getTimeoutInSeconds());
+            connect(detailsArgument.getDriverPath(), iConn);
         }
         else if (connectionMode == ConnectionMode.CONFIG){
             if (configArguments.getHelp()){
