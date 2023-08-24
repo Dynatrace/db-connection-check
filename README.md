@@ -2,9 +2,21 @@
 
 This is a quick tool to verify database connectivity, mainly used for
 troubleshooting problems in customer environment.
-
+<br>
 # Building
 We require that Java JDK 11 is available in the system. To build the tool simply execute the build script: build.sh on Linux or build.bat on Windows.
+Windows
+```
+build.bat
+```
+Linux
+```
+./build.sh
+```
+*If missing execution privileges error occurs, enter this command first:
+```
+chmod a+x
+```
 
 # Usage
 The recommended way of using the tool is to copy the db-connection-check directory with subdirectories to the machine where ActiveGate is installed and where the database datasource is running because that reflects the production environment including network and firewall settings as well as it should have all necessary drivers installed in the native directories:
@@ -28,7 +40,6 @@ HanaDB and DB2 Linux
 
 Otherwise, the drivers must be placed on the local machine (where the tool is executed) 
 and the location needs to be specified as -dp arguments
-
 # Testing connection
 
 Tool has two modes, to see all available commands run command
@@ -116,7 +127,6 @@ Windows examples:
 run.bat config -cp "C:\usrs\connectionTool\resources\db2.properties"
 run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\Program Files\drivers"
 ```
-
 # SSL
 To configure SSL connection follow this instruction regarding installing server's certificates:
 https://www.dynatrace.com/support/help/shortlink/oraclesql-monitoring#ssl
