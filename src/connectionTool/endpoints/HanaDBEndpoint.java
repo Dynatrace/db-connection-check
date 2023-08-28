@@ -58,9 +58,11 @@ public class HanaDBEndpoint implements IConnection {
         var properties = new Properties();
         properties.put("user", username);
         properties.put("password", password);
+        if(databaseName != null){
+            properties.put("databaseName", databaseName);
+        }
         if (sslEnabled) {
             properties.put("encrypt", "true");
-            properties.put("databaseName", databaseName);
             properties.put("validateCertificate", "true");
             properties.put("trustStore", SSLConstant.getSSLTrustStorePath());
             properties.put("trustStorePassword", SSLConstant.SSL_TRUSTSTORE_PASSWORD);
