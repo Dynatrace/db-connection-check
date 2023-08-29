@@ -28,9 +28,7 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -38,7 +36,6 @@ public class Main {
     }
 
     private static void run(String[] args){
-        LogSaver.appendLog("Arguments provided: " + Arrays.toString(args));
         HelpArgument helpArgument = new HelpArgument();
         DetailsArgument detailsArgument = new DetailsArgument();
         ConfigArguments configArguments = new ConfigArguments();
@@ -63,7 +60,6 @@ public class Main {
             jc.usage();
             System.exit(0);
         }
-
         ConnectionMode connectionMode = getConnectionMode(parsedCmdStr);
 
         if (connectionMode == ConnectionMode.DETAILS){
