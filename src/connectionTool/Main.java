@@ -30,6 +30,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -115,10 +116,10 @@ public class Main {
         try {
             isReachable = InetAddress.getByName(hostName).isReachable(timeout * 1000);
         } catch (final UnknownHostException e) {
-            LogSaver.printAndSaveMessage("Host is unknown", e.toString());
+            LogSaver.printAndSaveMessage(e.getMessage(), e.getStackTrace());
             System.exit(0);
         } catch (IOException e) {
-            LogSaver.printAndSaveMessage("Couldn't ping host, check logs for details!", e.toString());
+            LogSaver.printAndSaveMessage("Couldn't ping host: " + e.getMessage(), e.getStackTrace());
             System.exit(0);
         }
         if (isReachable) {
@@ -147,7 +148,7 @@ public class Main {
         try {
             driver = DriverLoader.findDriver(path, connection.getProvider());
         } catch (DriverNotFoundException e) {
-            LogSaver.printAndSaveMessage("Couldn't load the driver", e.toString());
+            LogSaver.printAndSaveMessage(e.getMessage(), e.getStackTrace());
             System.exit(0);
         }
         Connection conn = null;
@@ -155,7 +156,7 @@ public class Main {
             DriverManager.setLoginTimeout(connection.getTimeoutInSeconds());
             conn = driver.connect(connection.getConnectionString(), connection.getConnectionProperties());
         } catch (SQLException e) {
-            LogSaver.printAndSaveMessage("Couldn't connect to database", "Couldn't connect to database: " + e);
+            LogSaver.printAndSaveMessage("Couldn't connect to database: " + e.getMessage(), e.getStackTrace());
             System.exit(0);
         }
         if (conn != null) {
@@ -163,7 +164,7 @@ public class Main {
             try {
                 conn.close();
             } catch (SQLException e) {
-                LogSaver.printAndSaveMessage("Connection problems, check logs for details", "Connection problems: " + e);
+                LogSaver.printAndSaveMessage("Connection problem: " + e.getMessage(), e.getStackTrace());
                 System.exit(0);
             }
         }

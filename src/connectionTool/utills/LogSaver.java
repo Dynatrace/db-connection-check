@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class LogSaver {
 
@@ -42,6 +44,9 @@ public class LogSaver {
 		}
 	}
 
+	public static void printAndSaveMessage(String message, StackTraceElement[] stackTraceElements){
+		printAndSaveMessage(message, Arrays.stream(stackTraceElements).map(Object::toString).collect(Collectors.joining("\n")));
+	}
 	public static void printAndSaveMessage(String... messages){
 		if (messages.length > 2){
 			System.err.println("You can't use more than 2 arguments!");
