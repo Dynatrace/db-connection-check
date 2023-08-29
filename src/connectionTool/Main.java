@@ -137,7 +137,7 @@ public class Main {
             props.load(inputStream);
             inputStream.close();
         } catch (IOException e) {
-            LogSaver.printAndSaveMessage("Failed to load config files", "Failed to load config files: " + e);
+            LogSaver.printAndSaveMessage("Failed to load config files: " + e.getMessage(), e.getStackTrace());
             System.exit(0);
         }
         return props;
