@@ -38,11 +38,11 @@ public class DetailsArgument {
     private boolean help;
 
     @Parameter(names = {"-s", "--ssl"},
-            description = "should connection be encrypted")
+            description = "Add this flag enable encrypted connection")
     private boolean ssl = false;
 
     @Parameter(names = {"-tc", "--trust_certificates"},
-            description = "should ssl trust server certificates [only for SQL Server]")
+            description = "Add this flag to trust server certificates [only for MS SQL]")
     private boolean trustCertificates = false;
 
     public boolean isSsl(){
