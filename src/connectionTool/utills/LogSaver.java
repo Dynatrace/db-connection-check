@@ -44,9 +44,6 @@ public class LogSaver {
 		}
 	}
 
-	public static void printAndSaveMessage(String message, StackTraceElement[] stackTraceElements){
-		printAndSaveMessage(message, Arrays.stream(stackTraceElements).map(Object::toString).collect(Collectors.joining("\n")));
-	}
 	public static void printAndSaveMessage(String... messages){
 		if (messages.length > 2){
 			System.err.println("You can't use more than 2 arguments!");
@@ -60,5 +57,9 @@ public class LogSaver {
 			System.out.println(messages[0]);
 			LogSaver.appendLog(messages[0]);
 		}
+	}
+
+	public static String mapStackTrace(StackTraceElement[] stackTraceElements){
+		return Arrays.stream(stackTraceElements).map(Object::toString).collect(Collectors.joining("\n"));
 	}
 }

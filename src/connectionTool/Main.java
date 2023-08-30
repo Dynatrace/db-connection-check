@@ -112,10 +112,10 @@ public class Main {
         try {
             isReachable = InetAddress.getByName(hostName).isReachable(timeout * 1000);
         } catch (final UnknownHostException e) {
-            LogSaver.printAndSaveMessage(e.getMessage(), e.getStackTrace());
+            LogSaver.printAndSaveMessage(e.getMessage(), LogSaver.mapStackTrace(e.getStackTrace()));
             System.exit(0);
         } catch (IOException e) {
-            LogSaver.printAndSaveMessage("Couldn't ping host: " + e.getMessage(), e.getStackTrace());
+            LogSaver.printAndSaveMessage("Couldn't ping host: " + e.getMessage(), "Couldn't ping host: " +  e .getMessage() + "\n" +LogSaver.mapStackTrace(e.getStackTrace()));
             System.exit(0);
         }
         if (isReachable) {
@@ -133,7 +133,7 @@ public class Main {
             props.load(inputStream);
             inputStream.close();
         } catch (IOException e) {
-            LogSaver.printAndSaveMessage("Failed to load config files: " + e.getMessage(), e.getStackTrace());
+            LogSaver.printAndSaveMessage("Failed to load config files: " + e.getMessage(), "Failed to load config files: " +  e .getMessage() + "\n" +LogSaver.mapStackTrace(e.getStackTrace()));
             System.exit(0);
         }
         return props;
@@ -144,7 +144,7 @@ public class Main {
         try {
             driver = DriverLoader.findDriver(path, connection.getProvider());
         } catch (DriverNotFoundException e) {
-            LogSaver.printAndSaveMessage(e.getMessage(), e.getStackTrace());
+            LogSaver.printAndSaveMessage(e.getMessage(), LogSaver.mapStackTrace(e.getStackTrace()));
             System.exit(0);
         }
         Connection conn = null;
@@ -152,7 +152,7 @@ public class Main {
             DriverManager.setLoginTimeout(connection.getTimeoutInSeconds());
             conn = driver.connect(connection.getConnectionString(), connection.getConnectionProperties());
         } catch (SQLException e) {
-            LogSaver.printAndSaveMessage("Couldn't connect to database: " + e.getMessage(), e.getStackTrace());
+            LogSaver.printAndSaveMessage("Couldn't connect to database: " + e.getMessage(), "Couldn't connect to database: " +  e .getMessage() + "\n" + LogSaver.mapStackTrace(e.getStackTrace()));
             System.exit(0);
         }
         if (conn != null) {
@@ -160,7 +160,7 @@ public class Main {
             try {
                 conn.close();
             } catch (SQLException e) {
-                LogSaver.printAndSaveMessage("Connection problem: " + e.getMessage(), e.getStackTrace());
+                LogSaver.printAndSaveMessage("Connection problem: " + e.getMessage(), "Connection problem: " +  e .getMessage() + "\n" + LogSaver.mapStackTrace(e.getStackTrace()));
                 System.exit(0);
             }
         }

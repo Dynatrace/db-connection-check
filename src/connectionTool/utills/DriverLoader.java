@@ -91,7 +91,7 @@ public class DriverLoader {
             } catch (ClassNotFoundException ignored) {
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
                      NoSuchMethodException e) {
-                LogSaver.printAndSaveMessage("Couldn't load the driver: " + e.getMessage(), e.getStackTrace());
+                LogSaver.printAndSaveMessage("Couldn't load the driver: " + e.getMessage(),"Couldn't load the driver: " +  e .getMessage() + "\n" + LogSaver.mapStackTrace(e.getStackTrace()));
                 System.exit(0);
             }
             return null;
