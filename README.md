@@ -129,4 +129,5 @@ run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\P
 ```
 # SSL
 To configure SSL connection follow this instruction regarding installing server's certificates:
-https://www.dynatrace.com/support/help/shortlink/oraclesql-monitoring#ssl
+ https://www.dynatrace.com/support/help/extend-dynatrace/extensions20/data-sources/sql
+ in the menu on the left You can find your vendor 
