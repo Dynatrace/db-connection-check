@@ -81,9 +81,9 @@ run.bat --help
     &emsp;&emsp;&emsp;-h, --help [optional]<br /> 
     &emsp;&emsp;&emsp;&emsp; information about available commands and options<br />
     &emsp;&emsp;&emsp;-s, --ssl [optional]<br />
-    &emsp;&emsp;&emsp;&emsp;should connection be encrypted<br />
+    &emsp;&emsp;&emsp;&emsp;add this flag enable encrypted connection<br />
     &emsp;&emsp;&emsp;-tc, --trust_certificates [optional]<br />
-    &emsp;&emsp;&emsp;&emsp;should ssl trust server certificates [only for SQL Server]<br />
+    &emsp;&emsp;&emsp;&emsp;add this flag to trust server certificates [only for MS SQL]<br />
 
 
 Usage:
