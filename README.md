@@ -1,48 +1,133 @@
 # DB Connection Check Tool
 
-This is a **quick & dirty** tool to verify database connectivity, mainly used for
+This is a quick tool to verify database connectivity, mainly used for
 troubleshooting problems in customer environment.
+<br>
+# Building
+We require that Java JDK 11 is available in the system. To build the tool simply execute the build script: build.sh on Linux or build.bat on Windows.
+Windows
+```
+build.bat
+```
+Linux
+```
+./build.sh
+```
+*If missing execution privileges error occurs, enter this command first:
+```
+chmod a+x
+```
 
-## Building
+# Usage
+The recommended way of using the tool is to copy the db-connection-check directory with subdirectories to the machine where ActiveGate is installed and where the database datasource is running because that reflects the production environment including network and firewall settings as well as it should have all necessary drivers installed in the native directories:
 
-We assume that Java JDK is available in the system. To build the tool simply 
-execute the build script: `build.sh` on Linux or `build.bat` on Windows.
+Windows
+```
+C:\Program Files\dynatrace\remotepluginmodule\agent\res\java\libs
+```
+HanaDB and DB2 Windows
+```
+C:\ProgramData\dynatrace\remotepluginmodule\agent\conf\userdata\libs
+```
+Linux
+```
+/var/lib/dynatrace/remotepluginmodule/agent/res/java/libs
+```
+HanaDB and DB2 Linux
+```
+/var/lib/dynatrace/remotepluginmodule/agent/conf/userdata/libs
+```
 
-## Downloading pre-built package
+Otherwise, the drivers must be placed on the local machine (where the tool is executed) 
+and the location needs to be specified as -dp arguments
+# Testing connection
 
-You can also download compiled tool at: https://github.com/Dynatrace/db-connection-check/releases
+Tool has two modes, to see all available commands run command
 
-## Running the tool
+Linux:
+```
+./run.sh -h
+./run.sh --help
+```
 
-Before running the tool make sure required libraries are available in the `lib`
-directory. Due to licensing limitations we can't include all libraries with the 
-package.
+*If missing execution privileges error occurs, enter this command first:
+```
+chmod a+x
+```
+<br>
+<br>
 
-### Providing JDBC libraries
+Windows:
+```
+run.bat -h
+run.bat --help
+```
 
-Libraries that allow connecting to Microsoft SQL Server (jTDS driver) and 
-MySQL (MariaDB Driver) are included. Libraries that allow connecting to Oracle database
-need to be downloaded separately and placed in the `lib` folder.
 
-Oracle JDBC driver can be downloaded at: http://www.oracle.com/technetwork/database/features/jdbc/default-2280470.html
+1. Details mode,</br>
+    &emsp; Usage: details [options]<br />
+    &emsp;&emsp;Options:<br />
+    &emsp;&emsp;&emsp;-cs, --connection_string<br />
+    &emsp;&emsp;&emsp;&emsp;provide connection string, for example: jdbc:mysql://HOST/DATABASE<br />
+    &emsp;&emsp;&emsp;-p, --password<br />
+    &emsp;&emsp;&emsp;&emsp;password <br />
+    &emsp;&emsp;&emsp;-t, --timeout<br />
+    &emsp;&emsp;&emsp;&emsp;timeout<br />
+    &emsp;&emsp;&emsp;&emsp;Default: 0<br />
+    &emsp;&emsp;&emsp;-u, --username<br />
+    &emsp;&emsp;&emsp;&emsp; username<br />
+    &emsp;&emsp;&emsp;-dp, --driver_path [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;provide path to the folder with driver<br />
+    &emsp;&emsp;&emsp;-h, --help [optional]<br /> 
+    &emsp;&emsp;&emsp;&emsp; information about available commands and options<br />
+    &emsp;&emsp;&emsp;-s, --ssl [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;add this flag to enable encrypted connection<br />
+    &emsp;&emsp;&emsp;-tc, --trust_certificates [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;add this flag to trust server certificates [only for MS SQL]<br />
 
-In case you need to use Microsoft SQL ServerJDBC driver, you can download it 
-at: https://msdn.microsoft.com/library/mt484311.aspx or directly from: 
-http://clojars.org/repo/com/microsoft/sqlserver/sqljdbc4/4.0/sqljdbc4-4.0.jar
 
-Please note that it's usually not needed, as AppMon uses the jTDS driver.
+Usage:
 
-### Testing connection
+Linux examples:
+```
+./run.sh details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
+./run.sh details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp "/usr/local/drivers"
+```
+Windows examples:
+```
+run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
+run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp "C:\Program Files\drivers"
+```
+<br/>
+2. Config file mode,<br />
+    &emsp; Usage: details [options]<br />
+    &emsp;&emsp;Options:<br />
+    &emsp;&emsp;&emsp;-cp, --config_path<br />
+    &emsp;&emsp;&emsp;&emsp;provide path to the config file<br />
+    &emsp;&emsp;&emsp;-dp, --driver_path [optional]<br />
+    &emsp;&emsp;&emsp;&emsp;provide path to the folder with driver<br />
+    &emsp;&emsp;&emsp;-h, --helpConnection [optional]<br/>
+    &emsp;&emsp;&emsp;&emsp; information about available commands and options 
 
-Simply use the run script providing required parameters in the following order:
-`jdbcConnectionString`, `login`, `password`, `timeout`
+Properties configs are stored in: <br />
+```
+ resources/
+```
+(Do not rename .properties files)
 
-Database driver type will be detected based on the JDBC connection string format.
+Usage:
 
-Linux example:
-
-    ./run.sh jdbc:oracle:thin:@orahost:1521:orcl scott tiger 30
-
-Windows example:
-
-    run.bat jdbc:jtds:sqlserver://sqlserverHost;instance=sqlexpress sa dynatrace 30
+Linux examples:
+```
+./run.sh config -cp "/usr/connectionTool/resources/db2.properties"
+./run.sh config -cp "/usr/connectionTool/resources/db2.properties" -dp "/usr/local/drivers"
+```
+Windows examples:
+```
+run.bat config -cp "C:\usrs\connectionTool\resources\db2.properties"
+run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\Program Files\drivers"
+```
+# SSL
+To configure SSL connection follow this instruction regarding installing server's certificates:
+ https://www.dynatrace.com/support/help/extend-dynatrace/extensions20/data-sources/sql
+ in the menu on the left You can find your vendor 

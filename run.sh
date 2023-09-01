@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -cp "lib/*:." ConnectionCheck $@
+java -cp "lib/*:." connectionTool.Main $*
