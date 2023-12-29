@@ -31,7 +31,7 @@ C:\ProgramData\dynatrace\remotepluginmodule\agent\conf\userdata\libs
 ```
 Linux
 ```
-/var/lib/dynatrace/remotepluginmodule/agent/res/java/libs
+/opt/dynatrace/remotepluginmodule/agent/res/java/libs
 ```
 HanaDB and DB2 Linux
 ```
