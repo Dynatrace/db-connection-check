@@ -107,6 +107,10 @@ public class MSQLEndpoint implements IConnection {
         return requiredArguments;
     }
     private String createConnectionString(){
-        return SQLSERVER_PREFIX+host + ":" + port;
+        if (instanceName.isEmpty()) {
+            return SQLSERVER_PREFIX+host + ":" + port;
+        }else {
+            return SQLSERVER_PREFIX+host + "\\" + instanceName;
+        }
     }
 }
