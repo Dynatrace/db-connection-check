@@ -103,10 +103,28 @@ public class MSQLEndpoint implements IConnection {
     private List<String> getRequiredConfigValuesList(){
         List<String> requiredArguments = new ArrayList<>();
         requiredArguments.add("host");
-        requiredArguments.add("port");
         return requiredArguments;
     }
+
+    private Boolean isPort() {
+        if (port == null || port.isEmpty())
+            return false;
+        else
+            return true;
+
+
+    }
+
     private String createConnectionString(){
-        return SQLSERVER_PREFIX+host + ":" + port;
+        if (!isPort() && (instanceName == null || instanceName.isEmpty())) {
+			return SQLSERVER_PREFIX+host;
+		}
+		if (isPort() && (instanceName == null || instanceName.isEmpty())) {
+			return SQLSERVER_PREFIX+host + ":" + port;
+		}
+		if (!isPort()) {
+			return SQLSERVER_PREFIX+host + "\\" + instanceName;
+		}
+		return SQLSERVER_PREFIX+host + "\\" + instanceName + ":" + port;
     }
 }

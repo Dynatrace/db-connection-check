@@ -36,7 +36,7 @@ public class DetailsProvider {
 		this.isSSL = ssl;
 		this.host = extractHostFromJdbcConnectionString(connectionString);
 
-		LogSaver.appendLog("connectionString: " + connectionString + " host: " + host);
+		LogSaver.appendLog("connectionString: " + connectionString + " host: " + host + " user: " + username);
 	}
 	public IConnection createEndpoint(){
 		switch (provider){
