@@ -25,7 +25,7 @@ Windows
 ```
 C:\Program Files\dynatrace\remotepluginmodule\agent\res\java\libs
 ```
-HanaDB and DB2 Windows
+HanaDB Windows
 ```
 C:\ProgramData\dynatrace\remotepluginmodule\agent\conf\userdata\libs
 ```
@@ -33,13 +33,16 @@ Linux
 ```
 /opt/dynatrace/remotepluginmodule/agent/res/java/libs
 ```
-HanaDB and DB2 Linux
+HanaDB Linux
 ```
 /var/lib/dynatrace/remotepluginmodule/agent/conf/userdata/libs
 ```
 
 Otherwise, the drivers must be placed on the local machine (where the tool is executed) 
 and the location needs to be specified as -dp arguments
+
+## DB2 Drivers
+When testing connection with the default ActiveGate configuration, the DB2 drivers changed behaviour between ActiveGate versions 1.254 and 1.255, with the prior requiring the driver to be provided (same as HanaDB) and the latter using an already provided driver, like the rest of DB providers. The current version of this tool copies the behaviour of ActiveGate 1.255 and newer. If you however need to test older versions, simply use the code of this tool from the commit 107815f9ead0dc9063d0b5ac5c5a6473a0cc1dbd.
 # Testing connection
 
 Tool has two modes, to see all available commands run command
@@ -90,13 +93,13 @@ Usage:
 
 Linux examples:
 ```
-./run.sh details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
-./run.sh details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp "/usr/local/drivers"
+./run.sh details -cs jdbc:sap://hanadb:25000/SAMPLE -u username -p password -t 30
+./run.sh details -cs jdbc:sap://hanadb:25000/SAMPLE -u username -p password -t 30 -dp "/usr/local/drivers"
 ```
 Windows examples:
 ```
-run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30
-run.bat details -cs jdbc:db2://db2:25000/SAMPLE -u username -p password -t 30 -dp "C:\Program Files\drivers"
+run.bat details -cs jdbc:sap://hanadb:25000/SAMPLE -u username -p password -t 30
+run.bat details -cs jdbc:sap://hanadb:25000/SAMPLE -u username -p password -t 30 -dp "C:\Program Files\drivers"
 ```
 <br/>
 2. Config file mode,<br />
@@ -119,13 +122,13 @@ Usage:
 
 Linux examples:
 ```
-./run.sh config -cp "/usr/connectionTool/resources/db2.properties"
-./run.sh config -cp "/usr/connectionTool/resources/db2.properties" -dp "/usr/local/drivers"
+./run.sh config -cp "/usr/connectionTool/resources/hanadb.properties"
+./run.sh config -cp "/usr/connectionTool/resources/hanadb.properties" -dp "/usr/local/drivers"
 ```
 Windows examples:
 ```
-run.bat config -cp "C:\usrs\connectionTool\resources\db2.properties"
-run.bat config -cp "C:\usrs\connectionTool\resources\mysql.properties" -dp "C:\Program Files\drivers"
+run.bat config -cp "C:\usrs\connectionTool\resources\hanadb.properties"
+run.bat config -cp "C:\usrs\connectionTool\resources\hanadb.properties" -dp "C:\Program Files\drivers"
 ```
 # SSL
 To configure SSL connection follow this instruction regarding installing server's certificates:
